@@ -27,10 +27,15 @@ export default async function DashboardLayout({
         <header className="bg-[#1E293B] text-white p-4 flex justify-between items-center border-b border-white/10 sticky top-0 z-40">
           <h1 className="text-xl font-bold text-[#C9A84C]">BaitulMarifah</h1>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium hidden sm:block">{payload.nama}</span>
-            <div className="w-8 h-8 rounded-full bg-[#C9A84C] text-[#0F172A] flex items-center justify-center font-bold uppercase">
+            <span className="text-sm font-medium hidden sm:block text-white/70">{payload.nama}</span>
+            <div className="w-8 h-8 rounded-full bg-[#C9A84C] text-[#0F172A] flex items-center justify-center font-bold uppercase flex-shrink-0">
               {payload.nama.charAt(0)}
             </div>
+            <form action="/api/auth/logout" method="POST">
+              <button type="submit" className="text-xs font-bold text-white/50 hover:text-red-400 border border-white/15 hover:border-red-500/40 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-red-900/20 transition-all">
+                Keluar
+              </button>
+            </form>
           </div>
         </header>
 
