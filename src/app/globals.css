@@ -1,22 +1,91 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* ─── Design Tokens ─────────────────────────────────── */
 :root {
-  --background: #0F172A;
-  --foreground: #ffffff;
-  --color-primary: #C9A84C;
-  --color-primary-dark: #A8863A;
+  --gold:         #C9A84C;
+  --gold-hover:   #D4B869;
+  --gold-dim:     rgba(201, 168, 76, 0.12);
+  --gold-glow:    rgba(201, 168, 76, 0.22);
+  --navy:         #0F172A;
+  --navy-mid:     #0D1526;
+  --navy-light:   #1E293B;
+  --ivory:        #F8F4E6;
+  --glass-bg:     rgba(255, 255, 255, 0.032);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
+
+/* ─── Base ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--navy);
+  color: #ffffff;
+  font-family: var(--font-inter, system-ui, -apple-system, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── Islamic Geometric Pattern (Girih 8-pointed star) ─ */
+/*
+  8-pointed star polygon, 60×60 tile.
+  Center (30,30), outer r=24, inner r=10, interleaved 16 points.
+*/
+.pattern-girih {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpolygon points='30,6 33.8,20.8 47,13 39.2,26.2 54,30 39.2,33.8 47,47 33.8,39.2 30,54 26.2,39.2 13,47 20.8,33.8 6,30 20.8,26.2 13,13 26.2,20.8' fill='none' stroke='%23C9A84C' stroke-width='0.65' opacity='0.11'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+  background-repeat: repeat;
+}
+
+/* ─── Glass Morphism Card ────────────────────────────── */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.25rem;
+}
+
+/* ─── Gold Shimmer Button ────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.btn-gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--gold) 0%,
+    var(--gold-hover) 30%,
+    #F0D87A 50%,
+    var(--gold-hover) 70%,
+    var(--gold) 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+  color: #0F172A;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.btn-gold-shimmer:hover {
+  box-shadow: 0 0 28px var(--gold-glow);
+  transform: translateY(-1px);
+}
+
+/* ─── Gold Glow Pulse ────────────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0   0 var(--gold-glow); }
+  50%       { box-shadow: 0 0 18px 4px var(--gold-glow); }
+}
+
+.glow-pulse { animation: glow-pulse 2.5s ease-in-out infinite; }
+
+/* ─── Scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
 }

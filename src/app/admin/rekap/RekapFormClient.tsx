@@ -69,8 +69,14 @@ export default function RekapFormClient({ initialData }: { initialData: any }) {
   const fotoUrls: string[] = Array.isArray(formData.foto_urls) ? formData.foto_urls : [];
 
   return (
-    <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-6 md:p-8 max-w-3xl">
-      <div className="space-y-6">
+    <div className="max-w-3xl space-y-5">
+
+      {/* ── Section: Info Utama ── */}
+      <div className="glass-card p-6 space-y-5">
+        <h3 className="text-xs font-semibold text-[#C9A84C]/70 uppercase tracking-widest border-b border-white/8 pb-3">
+          Informasi Utama
+        </h3>
+
         {/* Tahun & Peserta */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -86,7 +92,7 @@ export default function RekapFormClient({ initialData }: { initialData: any }) {
 
         {/* Total Dana */}
         <div>
-          <label className="block text-sm font-semibold text-white/70 mb-1">Total Dana Qurban Terkumpul (Rp)</label>
+          <label className="block text-sm font-semibold text-white/60 mb-1">Total Dana Qurban Terkumpul (Rp)</label>
           <div className="relative">
             <span className="absolute left-4 top-3.5 text-white/40">Rp</span>
             <input type="number" name="total_dana" value={formData.total_dana} onChange={handleTextChange} required className={`${INPUT_CLS} pl-10`} />
@@ -94,35 +100,50 @@ export default function RekapFormClient({ initialData }: { initialData: any }) {
           {formData.total_dana > 0 && <p className="text-xs text-green-400 mt-1">= Rp {parseInt(formData.total_dana).toLocaleString('id-ID')}</p>}
         </div>
 
+      </div>{/* end Section: Info Utama */}
+
+      {/* ── Section: Distribusi Hewan ── */}
+      <div className="glass-card p-6 space-y-5">
+        <h3 className="text-xs font-semibold text-[#C9A84C]/70 uppercase tracking-widest border-b border-white/8 pb-3">
+          Distribusi Hewan
+        </h3>
+
         {/* Jumlah Hewan */}
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-white/70 mb-1">🐄 Jumlah Sapi</label>
+            <label className="block text-sm font-semibold text-white/60 mb-1">Jumlah Sapi</label>
             <input type="number" name="jumlah_sapi" value={formData.jumlah_sapi} onChange={handleTextChange} required className={INPUT_CLS} />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-white/70 mb-1">🐐 Jumlah Kambing</label>
+            <label className="block text-sm font-semibold text-white/60 mb-1">Jumlah Kambing</label>
             <input type="number" name="jumlah_kambing" value={formData.jumlah_kambing} onChange={handleTextChange} required className={INPUT_CLS} />
           </div>
         </div>
 
         {/* Wilayah Distribusi */}
         <div>
-          <label className="block text-sm font-semibold text-white/70 mb-1">Wilayah Distribusi</label>
+          <label className="block text-sm font-semibold text-white/60 mb-1">Wilayah Distribusi</label>
           <textarea name="wilayah_distribusi" value={formData.wilayah_distribusi} onChange={handleTextChange} rows={3}
             placeholder="Contoh: Desa Suka Maju RT 01-05, Panti Asuhan Al-Hidayah, Masjid sekitar..." required className={`${INPUT_CLS} resize-none`}></textarea>
         </div>
+      </div>{/* end Section: Distribusi Hewan */}
+
+      {/* ── Section: Testimoni & Dokumentasi ── */}
+      <div className="glass-card p-6 space-y-5">
+        <h3 className="text-xs font-semibold text-[#C9A84C]/70 uppercase tracking-widest border-b border-white/8 pb-3">
+          Testimoni &amp; Dokumentasi
+        </h3>
 
         {/* Testimoni */}
         <div>
-          <label className="block text-sm font-semibold text-white/70 mb-1">Testimoni / Kesan Penerima Manfaat</label>
+          <label className="block text-sm font-semibold text-white/60 mb-1">Testimoni / Kesan Penerima Manfaat</label>
           <textarea name="testimoni" value={formData.testimoni} onChange={handleTextChange} rows={3}
             placeholder="&quot;Alhamdulillah, daging qurbannya sangat bermanfaat untuk keluarga kami...&quot;" required className={`${INPUT_CLS} resize-none`}></textarea>
         </div>
 
         {/* Upload Foto */}
         <div>
-          <label className="block text-sm font-semibold text-white/70 mb-2">Foto Dokumentasi (Maks 5)</label>
+          <label className="block text-sm font-semibold text-white/60 mb-2">Foto Dokumentasi (Maks 5)</label>
           <div className="flex flex-wrap gap-4 mb-3">
             {fotoUrls.map((url: string, idx: number) => (
               <div key={idx} className="relative w-24 h-24 rounded-xl border border-white/10 overflow-hidden bg-white/5 group">
@@ -141,33 +162,34 @@ export default function RekapFormClient({ initialData }: { initialData: any }) {
           <p className="text-xs text-white/30">Unggah satu per satu. Disarankan foto landscape (horizontal). Maks 5MB/foto.</p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="pt-4 border-t border-white/10 flex flex-col md:flex-row gap-4">
-          <button type="button" onClick={(e) => handleSubmit(e, false)} disabled={loading}
-            className="px-6 py-3 bg-white/10 hover:bg-white/15 text-white/70 font-bold rounded-xl transition-colors disabled:opacity-50">
-            Simpan Draf (Hidden)
-          </button>
-          <button type="button" onClick={(e) => handleSubmit(e, true)} disabled={loading}
-            className="px-6 py-3 bg-[#C9A84C] hover:bg-[#D4B869] text-[#0F172A] font-bold rounded-xl transition-colors flex-1 disabled:opacity-50">
-            {loading ? 'Menyimpan...' : formData.visible ? '✓ Perbarui Publikasi' : '✨ Publish ke Publik'}
-          </button>
-        </div>
+      </div>{/* end Section: Testimoni & Dokumentasi */}
 
-        {saved && (
-          <div className="p-3 bg-green-900/20 border border-green-500/30 rounded-xl text-sm text-green-300">
-            ✅ Berhasil disimpan!
-          </div>
-        )}
-
-        {formData.visible && (
-          <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-xl text-sm text-green-300">
-            ✅ Laporan ini sedang <strong>aktif dan publik</strong>. Lihat di{' '}
-            <a href={`/rekap/${formData.tahun}`} target="_blank" className="underline font-bold text-green-400">
-              /rekap/{formData.tahun}
-            </a>
-          </div>
-        )}
+      {/* ── Action Buttons ── */}
+      <div className="glass-card p-5 flex flex-col md:flex-row gap-3">
+        <button type="button" onClick={(e) => handleSubmit(e, false)} disabled={loading}
+          className="px-6 py-3 bg-white/8 hover:bg-white/12 border border-white/12 text-white/60 font-semibold rounded-xl transition-colors disabled:opacity-50 text-sm">
+          Simpan Draf
+        </button>
+        <button type="button" onClick={(e) => handleSubmit(e, true)} disabled={loading}
+          className="btn-gold-shimmer px-6 py-3 flex-1 text-sm disabled:opacity-50 disabled:animate-none">
+          {loading ? 'Menyimpan...' : formData.visible ? 'Perbarui Publikasi' : 'Publish ke Publik'}
+        </button>
       </div>
+
+      {saved && (
+        <div className="glass-card p-4 border-green-500/30 bg-green-900/10 text-sm text-green-300">
+          Berhasil disimpan!
+        </div>
+      )}
+
+      {formData.visible && (
+        <div className="glass-card p-4 border-green-500/30 bg-green-900/10 text-sm text-green-300">
+          Laporan ini sedang <strong className="text-green-200">aktif dan publik</strong>. Lihat di{' '}
+          <a href={`/rekap/${formData.tahun}`} target="_blank" className="underline font-bold text-green-400">
+            /rekap/{formData.tahun}
+          </a>
+        </div>
+      )}
     </div>
   );
 }
