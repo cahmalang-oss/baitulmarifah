@@ -80,8 +80,9 @@ export default function PaketPage() {
     <div>
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
+          <p className="text-[#C9A84C]/70 text-xs uppercase tracking-widest font-semibold mb-1">Konfigurasi</p>
           <h1 className="text-2xl font-bold text-white">Manajemen Paket</h1>
-          <p className="text-white/50 text-sm mt-1">Kelola paket qurban dan bagikan link pendaftaran ke calon jamaah.</p>
+          <p className="text-white/40 text-sm mt-1">Kelola paket qurban dan bagikan link pendaftaran ke calon jamaah.</p>
         </div>
         <button onClick={() => setShowAddModal(true)} className="px-6 py-2.5 bg-[#C9A84C] hover:bg-[#D4B869] text-[#0F172A] font-bold rounded-xl transition-colors">
           + Buat Paket Baru
@@ -92,11 +93,11 @@ export default function PaketPage() {
         {loading ? (
           <div className="p-10 col-span-full text-center text-white/40">Memuat data paket...</div>
         ) : paketList.length === 0 ? (
-          <div className="p-10 col-span-full text-center bg-white/5 border border-white/10 rounded-2xl text-white/40">
+          <div className="p-10 col-span-full text-center glass-card text-white/40">
             Belum ada paket. Buat paket pertama Anda!
           </div>
         ) : paketList.map(paket => (
-          <div key={paket.id} className={`bg-white/5 border rounded-2xl p-6 flex flex-col gap-4 transition-all ${paket.aktif ? 'border-white/10' : 'border-dashed border-white/5 opacity-60'}`}>
+          <div key={paket.id} className={`glass-card p-6 flex flex-col gap-4 transition-all ${!paket.aktif ? 'opacity-50' : ''}`}>
             <div className="flex justify-between items-start">
               <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase ${jenisBadge(paket.jenis)}`}>{jenisLabel(paket.jenis)}</span>
               <button
@@ -127,7 +128,7 @@ export default function PaketPage() {
       {/* Modal Tambah */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1E293B] rounded-3xl w-full max-w-lg border border-white/10 relative overflow-hidden">
+          <div className="glass-card bg-[#0D1526]/95 w-full max-w-lg relative overflow-hidden rounded-3xl">
             <div className="p-6 border-b border-white/10 flex justify-between items-center">
               <h2 className="text-xl font-bold text-white">{newPaketId ? '✅ Paket Berhasil Dibuat' : 'Buat Paket Baru'}</h2>
               <button onClick={() => { setShowAddModal(false); setNewPaketId(null); resetAddForm(); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/60 hover:bg-white/15">✕</button>
@@ -174,7 +175,7 @@ export default function PaketPage() {
       {/* Modal Edit */}
       {showEditModal && editForm && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1E293B] rounded-3xl w-full max-w-lg border border-white/10">
+          <div className="glass-card bg-[#0D1526]/95 w-full max-w-lg rounded-3xl">
             <div className="p-6 border-b border-white/10 flex justify-between items-center">
               <h2 className="text-xl font-bold text-white">Edit Paket</h2>
               <button onClick={() => setShowEditModal(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/60">✕</button>

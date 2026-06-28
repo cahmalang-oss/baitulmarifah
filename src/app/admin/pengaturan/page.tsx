@@ -52,8 +52,9 @@ export default function PengaturanPage() {
   return (
     <div>
       <header className="mb-8">
+        <p className="text-[#C9A84C]/70 text-xs uppercase tracking-widest font-semibold mb-1">Sistem</p>
         <h1 className="text-2xl font-bold text-white">Pengaturan Masjid</h1>
-        <p className="text-white/50 text-sm mt-1">Informasi masjid, rekening bank, dan kontak pengurus.</p>
+        <p className="text-white/40 text-sm mt-1">Informasi masjid, rekening bank, dan kontak pengurus.</p>
       </header>
 
       {loading ? (
@@ -61,8 +62,8 @@ export default function PengaturanPage() {
       ) : (
         <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
           {/* Info Masjid */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
-            <h2 className="text-lg font-bold text-white border-b border-white/10 pb-3">🕌 Informasi Masjid</h2>
+          <div className="glass-card p-6 space-y-5">
+            <h2 className="text-xs font-semibold text-[#C9A84C]/70 uppercase tracking-widest border-b border-white/8 pb-3">Informasi Masjid</h2>
 
             {SETTING_FIELDS.slice(0, 2).map(field => (
               <div key={field.key}>
@@ -79,8 +80,8 @@ export default function PengaturanPage() {
           </div>
 
           {/* Info Bank */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
-            <h2 className="text-lg font-bold text-white border-b border-white/10 pb-3">🏦 Rekening & Pembayaran</h2>
+          <div className="glass-card p-6 space-y-5">
+            <h2 className="text-xs font-semibold text-[#C9A84C]/70 uppercase tracking-widest border-b border-white/8 pb-3">Rekening &amp; Pembayaran</h2>
             <p className="text-xs text-white/40">Info ini akan ditampilkan di halaman setoran jamaah sebagai panduan transfer.</p>
 
             {SETTING_FIELDS.slice(2, 5).map(field => (
@@ -122,8 +123,8 @@ export default function PengaturanPage() {
           </div>
 
           {/* Kontak */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
-            <h2 className="text-lg font-bold text-white border-b border-white/10 pb-3">📞 Kontak Pengurus</h2>
+          <div className="glass-card p-6 space-y-5">
+            <h2 className="text-xs font-semibold text-[#C9A84C]/70 uppercase tracking-widest border-b border-white/8 pb-3">Kontak Pengurus</h2>
             <div>
               <label className="block text-sm font-medium text-white/70 mb-1">{SETTING_FIELDS[5].label}</label>
               <div className="relative">
@@ -153,7 +154,7 @@ export default function PengaturanPage() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full py-3.5 bg-[#C9A84C] text-[#0F172A] font-bold rounded-xl hover:bg-[#D4B869] transition-colors disabled:opacity-50"
+            className="btn-gold-shimmer w-full py-3.5 disabled:opacity-50 disabled:animate-none"
           >
             {saving ? 'Menyimpan...' : 'Simpan Pengaturan'}
           </button>

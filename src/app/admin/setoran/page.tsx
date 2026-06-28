@@ -66,13 +66,14 @@ export default function SetoranPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-white mb-2">Antrian Verifikasi</h1>
-      <p className="text-white/50 mb-6 text-sm">Setoran yang menunggu konfirmasi masuk ke sistem.</p>
+      <p className="text-[#C9A84C]/70 text-xs uppercase tracking-widest font-semibold mb-1">Verifikasi</p>
+      <h1 className="text-2xl font-bold text-white mb-1">Antrian Setoran</h1>
+      <p className="text-white/40 mb-6 text-sm">Setoran yang menunggu konfirmasi masuk ke sistem.</p>
 
       {/* Modal Zoom Gambar */}
       {modalImage && (
         <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4" onClick={() => setModalImage(null)}>
-          <div className="relative max-w-4xl max-h-screen overflow-auto bg-[#1E293B] rounded-lg p-2" onClick={e => e.stopPropagation()}>
+          <div className="relative max-w-4xl max-h-screen overflow-auto bg-[#0D1526] rounded-lg p-2" onClick={e => e.stopPropagation()}>
             <button className="absolute top-4 right-4 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center z-10" onClick={() => setModalImage(null)}>✕</button>
             <img src={modalImage} alt="Bukti Transfer" className="max-w-full max-h-[80vh] object-contain rounded" />
           </div>
@@ -82,7 +83,7 @@ export default function SetoranPage() {
       {/* Modal Tolak Setoran */}
       {rejectId && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-[#1E293B] rounded-2xl w-full max-w-md p-6 border border-white/10">
+          <div className="glass-card bg-[#0D1526]/95 w-full max-w-md p-6">
             <h3 className="text-lg font-bold text-white mb-2">Tolak Setoran</h3>
             <p className="text-sm text-white/50 mb-4">Sebutkan alasan penolakan. Ini akan dikirimkan via WA ke jamaah.</p>
             <form onSubmit={handleTolak}>
@@ -110,7 +111,7 @@ export default function SetoranPage() {
       {loading && data.length === 0 ? (
         <div className="text-center py-20 text-white/40">Memuat antrian...</div>
       ) : data.length === 0 ? (
-        <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-12 text-center">
+        <div className="glass-card p-12 text-center">
           <div className="text-4xl mb-4">✨</div>
           <h3 className="text-lg font-bold text-white mb-1">Antrian Kosong</h3>
           <p className="text-white/40">Semua setoran sudah diproses.</p>
@@ -118,7 +119,7 @@ export default function SetoranPage() {
       ) : (
         <div className="space-y-4">
           {data.map((item) => (
-            <div key={item.id} className="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl flex flex-col md:flex-row gap-6 hover:bg-white/10 transition-colors">
+            <div key={item.id} className="glass-card p-5 flex flex-col md:flex-row gap-6 hover:border-white/15 transition-colors">
 
               {/* Thumbnail Bukti */}
               <div

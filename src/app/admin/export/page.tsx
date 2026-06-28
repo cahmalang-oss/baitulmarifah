@@ -35,15 +35,16 @@ export default function ExportPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Export Laporan CSV</h1>
-        <p className="text-white/50 text-sm mt-1">
+        <p className="text-[#C9A84C]/70 text-xs uppercase tracking-widest font-semibold mb-1">Laporan</p>
+        <h1 className="text-2xl font-bold text-white">Export Data CSV</h1>
+        <p className="text-white/40 text-sm mt-1">
           Unduh data dalam format CSV — kompatibel dengan Microsoft Excel dan Google Sheets.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {/* Export Jamaah */}
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
+        <div className="glass-card p-6 flex flex-col gap-4">
           <div className="w-12 h-12 bg-blue-900/40 text-blue-400 rounded-xl flex items-center justify-center text-2xl">👥</div>
           <div>
             <h2 className="text-lg font-bold text-white mb-1">Data Jamaah</h2>
@@ -59,7 +60,7 @@ export default function ExportPage() {
         </div>
 
         {/* Export Setoran */}
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
+        <div className="glass-card p-6 flex flex-col gap-4">
           <div className="w-12 h-12 bg-emerald-900/40 text-emerald-400 rounded-xl flex items-center justify-center text-2xl">💰</div>
           <div>
             <h2 className="text-lg font-bold text-white mb-1">Riwayat Setoran</h2>
@@ -85,7 +86,7 @@ export default function ExportPage() {
         </div>
 
         {/* Export Infaq */}
-        <div className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col gap-4">
+        <div className="glass-card p-6 flex flex-col gap-4">
           <div className="w-12 h-12 bg-purple-900/40 text-purple-400 rounded-xl flex items-center justify-center text-2xl">💚</div>
           <div>
             <h2 className="text-lg font-bold text-white mb-1">Transaksi Infaq</h2>

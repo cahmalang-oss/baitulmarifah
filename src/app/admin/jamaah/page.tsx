@@ -72,8 +72,9 @@ export default function JamaahPage() {
     <div>
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <div>
+          <p className="text-[#C9A84C]/70 text-xs uppercase tracking-widest font-semibold mb-1">Database</p>
           <h1 className="text-2xl font-bold text-white">Manajemen Jamaah</h1>
-          <p className="text-white/50 text-sm">Kelola data, status, dan Virtual Account jamaah.</p>
+          <p className="text-white/40 text-sm">Kelola data, status, dan Virtual Account jamaah.</p>
         </div>
         <Link
           href="/admin/jamaah/tambah"
@@ -84,7 +85,7 @@ export default function JamaahPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/10 mb-6 flex flex-col md:flex-row gap-3">
+      <div className="glass-card p-4 mb-6 flex flex-col md:flex-row gap-3">
         <div className="flex-1">
           <input
             type="text"
@@ -118,7 +119,7 @@ export default function JamaahPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden">
+      <div className="glass-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-black/20 text-xs uppercase text-white/50 font-semibold border-b border-white/10">
