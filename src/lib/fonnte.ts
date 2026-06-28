@@ -1,5 +1,5 @@
 export async function sendWA(to: string, message: string): Promise<boolean> {
-  const token = process.env.FONNTE_API_KEY;
+  const token = process.env.FONNTE_TOKEN;
   
   if (!token || token === 'placeholder') {
     console.warn(`[Fonnte Dev Mode] Sending WA to ${to}:\n${message}`);
