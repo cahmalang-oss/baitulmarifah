@@ -49,18 +49,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Gagal mengunggah foto bukti: ${uploadError.message}` }, { status: 500 });
     }
 
-    // Validasi: setoran kurban hanya boleh jika punya paket
-    if (kategori === 'kurban') {
-      const { data: profData } = await supabase
-        .from('jamaah_profile')
-        .select('paket_id')
-        .eq('id', profile.id)
-        .single();
-      if (!profData?.paket_id) {
-        return NextResponse.json({ error: 'Anda belum terdaftar dalam paket qurban. Hubungi admin untuk bergabung.' }, { status: 400 });
-      }
-    }
-
     // Validasi: setoran donatur_tetap harus terdaftar
     let donaturId: string | null = null;
     if (kategori === 'donatur_tetap') {

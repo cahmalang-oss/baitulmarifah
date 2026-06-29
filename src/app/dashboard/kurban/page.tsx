@@ -133,8 +133,8 @@ export default function KurbanSetoranPage() {
         </div>
       )}
 
-      {/* Form — hanya tampil jika punya paket */}
-      {profile?.paket_id && (
+      {/* Form setoran — selalu tampil */}
+      {profile !== null && (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-white/70 mb-1">Jumlah Setoran (Rp)</label>
