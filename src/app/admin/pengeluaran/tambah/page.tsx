@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const SUMBER_PRESET = ['Kotak Jumat', 'Kotak Harian', 'Transfer BSI', 'QRIS', 'Donatur Pribadi', 'Event Masjid'];
+const KEPERLUAN_PRESET = ['Pembelian ATK', 'Kebersihan Masjid', 'Perbaikan Ringan', 'Perlengkapan Ibadah', 'Gaji Marbot', 'Listrik & Air', 'Konsumsi Rapat'];
 
 const INPUT_CLS = 'w-full px-4 py-3 bg-white/5 border border-white/15 text-white placeholder:text-white/25 rounded-xl focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent outline-none transition';
 
-export default function TambahInsidentilPage() {
+export default function TambahPengeluaranPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,14 +28,14 @@ export default function TambahInsidentilPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/infaq/insidentil', {
+      const res = await fetch('/api/admin/pengeluaran', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, jenis: 'masuk', nominal: parseInt(form.nominal, 10) }),
+        body: JSON.stringify({ ...form, nominal: parseInt(form.nominal, 10) }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Gagal menyimpan'); setLoading(false); return; }
-      router.push('/admin/infaq/insidentil');
+      router.push('/admin/pengeluaran');
     } catch {
       setError('Terjadi kesalahan jaringan');
       setLoading(false);
@@ -45,10 +45,10 @@ export default function TambahInsidentilPage() {
   return (
     <div className="max-w-lg">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/admin/infaq/insidentil" className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white transition-colors">←</Link>
+        <Link href="/admin/pengeluaran" className="w-10 h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-white transition-colors">←</Link>
         <div>
-          <h1 className="text-2xl font-bold text-white">Tambah Infaq Insidentil</h1>
-          <p className="text-white/50 text-sm mt-0.5">Catat penerimaan infaq & shadaqah.</p>
+          <h1 className="text-2xl font-bold text-white">Tambah Pengeluaran</h1>
+          <p className="text-white/50 text-sm mt-0.5">Catat pengeluaran & belanja masjid.</p>
         </div>
       </div>
 
@@ -57,9 +57,8 @@ export default function TambahInsidentilPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Nominal */}
         <div>
-          <label className="block text-sm font-medium text-white/70 mb-1">Nominal (Rp)</label>
+          <label className="block text-sm font-medium text-white/70 mb-1">Nominal (Rp) <span className="text-red-400">*</span></label>
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-white/40 font-medium">Rp</span>
             <input
@@ -69,15 +68,14 @@ export default function TambahInsidentilPage() {
               value={form.nominal}
               onChange={e => set('nominal', e.target.value)}
               className={`${INPUT_CLS} pl-12`}
-              placeholder="500000"
+              placeholder="150000"
             />
           </div>
         </div>
 
-        {/* Sumber */}
         <div>
           <label className="block text-sm font-medium text-white/70 mb-1">
-            Sumber Dana
+            Keperluan / Tujuan
             <span className="text-white/30 font-normal"> (opsional)</span>
           </label>
           <input
@@ -85,10 +83,10 @@ export default function TambahInsidentilPage() {
             value={form.sumber}
             onChange={e => set('sumber', e.target.value)}
             className={INPUT_CLS}
-            placeholder="Nama donatur atau sumber kotak"
+            placeholder="Misal: Pembelian alat kebersihan"
           />
           <div className="flex flex-wrap gap-2 mt-2">
-            {SUMBER_PRESET.map(p => (
+            {KEPERLUAN_PRESET.map(p => (
               <button
                 key={p}
                 type="button"
@@ -105,9 +103,8 @@ export default function TambahInsidentilPage() {
           </div>
         </div>
 
-        {/* Tanggal */}
         <div>
-          <label className="block text-sm font-medium text-white/70 mb-1">Tanggal Transaksi</label>
+          <label className="block text-sm font-medium text-white/70 mb-1">Tanggal <span className="text-red-400">*</span></label>
           <input
             type="date"
             required
@@ -118,7 +115,6 @@ export default function TambahInsidentilPage() {
           />
         </div>
 
-        {/* Catatan */}
         <div>
           <label className="block text-sm font-medium text-white/70 mb-1">
             Catatan <span className="text-white/30 font-normal">(opsional)</span>
@@ -132,10 +128,9 @@ export default function TambahInsidentilPage() {
           />
         </div>
 
-        {/* Submit */}
         <div className="flex gap-3 pt-2">
           <Link
-            href="/admin/infaq/insidentil"
+            href="/admin/pengeluaran"
             className="flex-1 py-3 text-center bg-white/5 border border-white/10 text-white/60 font-semibold rounded-xl hover:bg-white/10 transition-colors"
           >
             Batal
@@ -143,9 +138,9 @@ export default function TambahInsidentilPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-3 bg-[#C9A84C] text-[#0F172A] font-bold rounded-xl hover:bg-[#D4B869] transition-colors disabled:opacity-50"
+            className="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-colors disabled:opacity-50"
           >
-            {loading ? 'Menyimpan...' : 'Simpan Transaksi'}
+            {loading ? 'Menyimpan...' : 'Simpan Pengeluaran'}
           </button>
         </div>
       </form>

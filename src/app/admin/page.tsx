@@ -16,17 +16,18 @@ export default async function AdminDashboardPage() {
     { count: totalJamaah },
     { count: totalPending },
     { data: profiles },
-    { data: infaqData },
+    { data: kasData },
   ] = await Promise.all([
     supabase.from('users').select('id', { count: 'exact' }).eq('role', 'jamaah').eq('status', 'aktif'),
     supabase.from('setoran').select('id', { count: 'exact' }).eq('status', 'pending'),
     supabase.from('jamaah_profile').select('saldo'),
-    supabase.from('kas_transaksi').select('nominal').eq('kategori', 'infaq')
-      .gte('tanggal', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]),
+    supabase.from('kas_transaksi').select('nominal, jenis, kategori'),
   ]);
 
-  const totalSaldo = profiles?.reduce((s, p) => s + (p.saldo || 0), 0) ?? 0;
-  const totalInfaq = infaqData?.reduce((s, i) => s + (i.nominal || 0), 0) ?? 0;
+  const totalTabunganKurban = profiles?.reduce((s, p) => s + (p.saldo || 0), 0) ?? 0;
+  const totalKasMasuk = kasData?.filter(k => k.jenis === 'masuk').reduce((s, k) => s + (k.nominal || 0), 0) ?? 0;
+  const totalKasKeluar = kasData?.filter(k => k.jenis === 'keluar').reduce((s, k) => s + (k.nominal || 0), 0) ?? 0;
+  const totalInfaq = totalKasMasuk - totalKasKeluar;
 
   const stats = [
     {
@@ -48,18 +49,18 @@ export default async function AdminDashboardPage() {
       href: '/admin/setoran',
     },
     {
-      label: 'Total Saldo Terkumpul',
-      value: fmt(totalSaldo),
-      sub: 'dari seluruh jamaah',
+      label: 'Total Tabungan Kurban',
+      value: fmt(totalTabunganKurban),
+      sub: 'tabungan seluruh jamaah',
       icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
       accent: 'text-emerald-400',
       gold: false,
       href: '/admin/rekap',
     },
     {
-      label: 'Infaq Bulan Ini',
+      label: 'Saldo Kas Infaq',
       value: fmt(totalInfaq),
-      sub: new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
+      sub: 'total masuk dikurangi pengeluaran',
       icon: '4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
       accent: 'text-white',
       gold: false,

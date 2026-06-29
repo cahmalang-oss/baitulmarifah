@@ -18,6 +18,7 @@ export default async function DashboardLayout({
     { label: 'Beranda', href: `/dashboard`, icon: '🏠' },
     { label: 'Setor', href: `/dashboard/setoran`, icon: '💸' },
     { label: 'Riwayat', href: `/dashboard/riwayat`, icon: '📋' },
+    { label: 'Donatur', href: `/dashboard/donatur`, icon: '🤝' },
     { label: 'Profil', href: `/dashboard/profil`, icon: '👤' },
   ];
 

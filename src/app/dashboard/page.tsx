@@ -50,6 +50,24 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* CTA pilih paket jika belum ada */}
+      {!paket && (
+        <div className="bg-[#C9A84C]/10 border border-[#C9A84C]/30 rounded-2xl p-5 flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#C9A84C]/20 flex items-center justify-center text-xl flex-shrink-0">📋</div>
+          <div className="flex-1">
+            <p className="text-[#C9A84C] font-bold text-sm">Belum Memilih Paket Qurban</p>
+            <p className="text-white/60 text-xs mt-0.5 mb-3">Hubungi admin atau pilih paket melalui link yang dibagikan untuk mulai menabung.</p>
+            <a
+              href="/api/auth/logout"
+              className="text-xs text-white/40 underline"
+              onClick={async (e) => { e.preventDefault(); await fetch('/api/auth/logout', { method: 'POST' }); window.location.href = '/login'; }}
+            >
+              Bukan akun Anda? Logout
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Saldo Card */}
       <div className="bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-[#C9A84C]/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
         <div className="absolute -right-4 -top-4 w-24 h-24 bg-[#C9A84C]/10 rounded-full blur-xl"></div>

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: Request) {
   try {
-    const { nama, no_wa, alamat, pin } = await request.json()
+    const { nama, no_wa, alamat, pin, paket_id } = await request.json()
 
     if (!nama || !no_wa || !pin) {
       return NextResponse.json({ error: 'Nama, No WA, dan PIN wajib diisi' }, { status: 400 })
@@ -53,7 +53,8 @@ export async function POST(request: Request) {
 
     // Insert jamaah_profile
     await supabase.from('jamaah_profile').insert({
-      user_id: user.id
+      user_id: user.id,
+      paket_id: paket_id || null
     })
 
     // Auto-login after register
