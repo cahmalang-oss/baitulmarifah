@@ -15,7 +15,7 @@ export interface Database {
           nama: string
           email: string | null
           no_wa: string
-          role: 'admin' | 'petugas_verifikasi' | 'petugas_keuangan' | 'jamaah'
+          role: 'admin' | 'verifikator' | 'bendahara' | 'jamaah'
           alamat: string | null
           status: 'aktif' | 'nonaktif' | 'pending'
           fcm_token: string | null

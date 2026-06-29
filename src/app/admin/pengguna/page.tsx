@@ -7,8 +7,6 @@ const ROLE_LABELS: Record<string, string> = {
   bendahara: 'Bendahara',
   verifikator: 'Verifikator',
   jamaah: 'Jamaah',
-  petugas_keuangan: 'Petugas Keuangan',
-  petugas_verifikasi: 'Petugas Verifikasi',
 };
 
 const ROLE_COLORS: Record<string, string> = {
@@ -16,8 +14,6 @@ const ROLE_COLORS: Record<string, string> = {
   bendahara: 'bg-blue-900/40 text-blue-300 border-blue-500/30',
   verifikator: 'bg-purple-900/40 text-purple-300 border-purple-500/30',
   jamaah: 'bg-white/10 text-white/50 border-white/15',
-  petugas_keuangan: 'bg-cyan-900/40 text-cyan-300 border-cyan-500/30',
-  petugas_verifikasi: 'bg-indigo-900/40 text-indigo-300 border-indigo-500/30',
 };
 
 export default function PenggunaPage() {

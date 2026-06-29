@@ -3,9 +3,9 @@ import type { NextRequest } from 'next/server'
 import { verifyToken, JwtPayload } from './auth'
 import { createClient } from './supabase/server'
 
-export const ALL_STAFF_ROLES = ['admin', 'bendahara', 'verifikator', 'petugas_verifikasi', 'petugas_keuangan'];
-export const BENDAHARA_ROLES = ['admin', 'bendahara', 'petugas_keuangan'];
-export const VERIFIKATOR_ROLES = ['admin', 'verifikator', 'petugas_verifikasi'];
+export const ALL_STAFF_ROLES = ['admin', 'bendahara', 'verifikator'];
+export const BENDAHARA_ROLES = ['admin', 'bendahara'];
+export const VERIFIKATOR_ROLES = ['admin', 'verifikator'];
 
 function unauthorizedResponse() {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });

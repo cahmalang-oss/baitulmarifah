@@ -51,7 +51,7 @@ export function proxy(request: NextRequest) {
     }
     
     // 4. Staff trying to access dashboard → redirect ke admin
-    if (isDashboard && ['admin', 'petugas_verifikasi', 'petugas_keuangan', 'bendahara', 'verifikator'].includes(role)) {
+    if (isDashboard && ['admin', 'bendahara', 'verifikator'].includes(role)) {
       url.pathname = '/admin';
       return NextResponse.redirect(url);
     }

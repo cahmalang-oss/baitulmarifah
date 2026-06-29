@@ -7,7 +7,7 @@ const secretKey = new TextEncoder().encode(JWT_SECRET)
 export type JwtPayload = {
   id: string
   nama: string
-  role: 'admin' | 'petugas_verifikasi' | 'petugas_keuangan' | 'jamaah'
+  role: 'admin' | 'verifikator' | 'bendahara' | 'jamaah'
 }
 
 // Digunakan di Server (Node.js) / Edge

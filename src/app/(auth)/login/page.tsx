@@ -31,7 +31,7 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login gagal')
       }
 
-      const staffRoles = ['admin', 'bendahara', 'verifikator', 'petugas_verifikasi', 'petugas_keuangan'];
+      const staffRoles = ['admin', 'bendahara', 'verifikator'];
       if (staffRoles.includes(data.user?.role)) {
         router.push('/admin');
       } else {
