@@ -12,6 +12,7 @@ export async function POST(request: Request) {
     const tanggal_setor = formData.get('tanggal_setor');
     const bukti = formData.get('bukti') as File | null;
     const catatan = formData.get('catatan') || '';
+    const kategori = (formData.get('kategori') || 'kurban').toString();
 
     if (!jumlah || !tanggal_setor || !bukti) {
       return NextResponse.json({ error: 'Data tidak lengkap' }, { status: 400 });
@@ -48,6 +49,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Gagal mengunggah foto bukti: ${uploadError.message}` }, { status: 500 });
     }
 
+    // Validasi: setoran kurban hanya boleh jika punya paket
+    if (kategori === 'kurban') {
+      const { data: profData } = await supabase
+        .from('jamaah_profile')
+        .select('paket_id')
+        .eq('id', profile.id)
+        .single();
+      if (!profData?.paket_id) {
+        return NextResponse.json({ error: 'Anda belum terdaftar dalam paket qurban. Hubungi admin untuk bergabung.' }, { status: 400 });
+      }
+    }
+
     // Insert ke tabel setoran
     const { error: insertError } = await supabase.from('setoran').insert({
       jamaah_id: profile.id,
@@ -55,7 +68,8 @@ export async function POST(request: Request) {
       tanggal_setor: tanggal_setor.toString(),
       status: 'pending',
       bukti_url: filePath,
-      catatan: catatan.toString()
+      catatan: catatan.toString(),
+      kategori
     });
 
     if (insertError) {

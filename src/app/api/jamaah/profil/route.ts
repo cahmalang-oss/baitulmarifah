@@ -3,6 +3,24 @@ import { requireJamaah } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { hashPin, verifyPin } from '@/lib/auth';
 
+export async function GET() {
+  try {
+    const payload = await requireJamaah();
+    if (payload instanceof Response) return payload;
+
+    const supabase = createAdminClient();
+    const { data: profile } = await supabase
+      .from('jamaah_profile')
+      .select('id, paket_id, saldo')
+      .eq('user_id', payload.id)
+      .single();
+
+    return NextResponse.json({ profile });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function PUT(request: Request) {
   try {
     const payload = await requireJamaah();

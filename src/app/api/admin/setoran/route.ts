@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     const { data, count, error } = await supabase
       .from('setoran')
       .select(`
-        id, jumlah, tanggal_setor, status, bukti_url,
+        id, jumlah, tanggal_setor, status, bukti_url, kategori,
         jamaah_profile (
           user_id,
           users (nama, no_wa)
@@ -30,13 +30,13 @@ export async function GET(request: Request) {
 
     if (error) throw error;
 
-    // Format data to match client expectations
     const formattedData = data.map((item: any) => ({
       id: item.id,
       jumlah: item.jumlah,
       tanggal_setor: item.tanggal_setor,
       status: item.status,
       bukti_url: item.bukti_url,
+      kategori: item.kategori || 'kurban',
       peserta: {
         nama: item.jamaah_profile?.users?.nama || 'Unknown',
         no_wa: item.jamaah_profile?.users?.no_wa || ''

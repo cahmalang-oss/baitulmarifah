@@ -17,7 +17,7 @@ export async function POST(
     // 1. Ambil data setoran & jamaah
     const { data: setoran, error: fetchError } = await supabase
       .from('setoran')
-      .select('id, jumlah, status, jamaah_id, jamaah_profile(id, user_id, users(nama, no_wa))')
+      .select('id, jumlah, status, kategori, jamaah_id, jamaah_profile(id, user_id, users(nama, no_wa))')
       .eq('id', id)
       .single();
 
@@ -35,9 +35,11 @@ export async function POST(
     }
 
     const jumlahSetoran = setoran.jumlah || 0;
+    const kategori = setoran.kategori || 'kurban';
     const jamaahProfile: any = Array.isArray(setoran.jamaah_profile) ? setoran.jamaah_profile[0] : setoran.jamaah_profile;
     const userData: any = jamaahProfile?.users ? (Array.isArray(jamaahProfile.users) ? jamaahProfile.users[0] : jamaahProfile.users) : null;
     const noWa = userData?.no_wa;
+    const namaJamaah = userData?.nama || 'Jamaah';
 
     // 2. Update status setoran
     const { error: updateError } = await supabase
@@ -48,36 +50,52 @@ export async function POST(
         verified_at: new Date().toISOString()
       })
       .eq('id', id)
-      .eq('status', 'pending'); // Optimistic lock: only update if still pending
+      .eq('status', 'pending');
 
     if (updateError) throw updateError;
 
-    // 3. ATOMIC saldo update menggunakan raw SQL via rpc
-    // Jika rpc 'increment_saldo' belum ada, fallback ke read-then-write
-    const { error: rpcError } = await supabase.rpc('increment_saldo', {
-      profile_id: jamaahProfileId,
-      amount: jumlahSetoran,
-    });
+    // 3. Proses berdasarkan kategori
+    if (kategori === 'kurban') {
+      // Update saldo tabungan kurban
+      const { error: rpcError } = await supabase.rpc('increment_saldo', {
+        profile_id: jamaahProfileId,
+        amount: jumlahSetoran,
+      });
 
-    if (rpcError) {
-      // Fallback: read-then-write (less safe but functional)
-      console.warn('RPC increment_saldo not available, using fallback:', rpcError.message);
-      const { data: profile } = await supabase
-        .from('jamaah_profile')
-        .select('saldo')
-        .eq('id', jamaahProfileId)
-        .single();
+      if (rpcError) {
+        console.warn('RPC increment_saldo not available, using fallback:', rpcError.message);
+        const { data: profile } = await supabase
+          .from('jamaah_profile')
+          .select('saldo')
+          .eq('id', jamaahProfileId)
+          .single();
 
-      const saldoLama = profile?.saldo || 0;
-      const { error: saldoError } = await supabase
-        .from('jamaah_profile')
-        .update({ saldo: saldoLama + jumlahSetoran })
-        .eq('id', jamaahProfileId);
+        const saldoLama = profile?.saldo || 0;
+        const { error: saldoError } = await supabase
+          .from('jamaah_profile')
+          .update({ saldo: saldoLama + jumlahSetoran })
+          .eq('id', jamaahProfileId);
 
-      if (saldoError) {
-        // Revert status
+        if (saldoError) {
+          try { await supabase.from('setoran').update({ status: 'pending', verified_by: null, verified_at: null }).eq('id', id); } catch {}
+          throw saldoError;
+        }
+      }
+    } else {
+      // kategori === 'infaq': masukkan ke kas_transaksi
+      const { error: kasError } = await supabase.from('kas_transaksi').insert({
+        jenis: 'masuk',
+        kategori: 'infaq_insidentil',
+        nominal: jumlahSetoran,
+        sumber: `Infaq dari ${namaJamaah}`,
+        catatan: `Konfirmasi setoran ID: ${id}`,
+        tanggal: new Date().toISOString().split('T')[0],
+        input_oleh: payload.id,
+      });
+
+      if (kasError) {
         try { await supabase.from('setoran').update({ status: 'pending', verified_by: null, verified_at: null }).eq('id', id); } catch {}
-        throw saldoError;
+        throw kasError;
       }
     }
 
