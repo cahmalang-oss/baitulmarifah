@@ -50,7 +50,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/api/auth/callback`
+        redirectTo: `${window.location.origin.replace('://baitulmarifah.web.id', '://www.baitulmarifah.web.id')}/api/auth/callback`
       }
     })
     
