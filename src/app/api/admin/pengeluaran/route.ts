@@ -1,6 +1,10 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireBendahara } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
+
+const VALID_KATEGORI = ['pengeluaran_infaq', 'pengeluaran_kurban'];
+// kategori lama 'pengeluaran' tetap ditampilkan di list
+const ALL_KATEGORI = ['pengeluaran', 'pengeluaran_infaq', 'pengeluaran_kurban'];
 
 export async function GET(request: Request) {
   try {
@@ -10,16 +14,21 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const bulan = searchParams.get('bulan') || '';
+    const jenisKas = searchParams.get('jenis_kas') || ''; // filter opsional
     const limit = 20;
     const start = (page - 1) * limit;
     const end = start + limit - 1;
 
     const supabase = createAdminClient();
 
+    const kategoriFilter = jenisKas && VALID_KATEGORI.includes(jenisKas)
+      ? [jenisKas]
+      : ALL_KATEGORI;
+
     let query = supabase
       .from('kas_transaksi')
-      .select('id, nominal, sumber, catatan, tanggal', { count: 'exact' })
-      .eq('kategori', 'pengeluaran')
+      .select('id, kategori, nominal, sumber, catatan, tanggal', { count: 'exact' })
+      .in('kategori', kategoriFilter)
       .eq('jenis', 'keluar')
       .order('tanggal', { ascending: false })
       .range(start, end);
@@ -49,10 +58,13 @@ export async function POST(request: Request) {
     if (payload instanceof Response) return payload;
 
     const body = await request.json();
-    const { nominal, sumber, tanggal, catatan } = body;
+    const { nominal, sumber, tanggal, catatan, jenis_kas } = body;
 
     if (!nominal || !tanggal) {
       return NextResponse.json({ error: 'Nominal dan tanggal wajib diisi' }, { status: 400 });
+    }
+    if (!jenis_kas || !VALID_KATEGORI.includes(jenis_kas)) {
+      return NextResponse.json({ error: 'Jenis kas harus dipilih (pengeluaran_infaq / pengeluaran_kurban)' }, { status: 400 });
     }
     if (nominal <= 0) {
       return NextResponse.json({ error: 'Nominal harus lebih dari 0' }, { status: 400 });
@@ -67,7 +79,7 @@ export async function POST(request: Request) {
       .from('kas_transaksi')
       .insert({
         jenis: 'keluar',
-        kategori: 'pengeluaran',
+        kategori: jenis_kas,
         nominal,
         sumber: sumber || '',
         catatan: catatan || null,
@@ -84,7 +96,7 @@ export async function POST(request: Request) {
       entity_type: 'kas_transaksi',
       entity_id: data.id,
       user_id: payload.id,
-      detail: { nominal }
+      detail: { nominal, kategori: jenis_kas }
     });
 
     return NextResponse.json({ success: true, data });
@@ -92,4 +104,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

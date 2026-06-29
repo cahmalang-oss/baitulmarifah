@@ -81,6 +81,7 @@ export default function PengeluaranPage() {
                 <tr>
                   <th className="text-left px-5 py-3 font-semibold text-white/50">Tanggal</th>
                   <th className="text-left px-5 py-3 font-semibold text-white/50">Keperluan</th>
+                  <th className="text-left px-5 py-3 font-semibold text-white/50">Jenis Kas</th>
                   <th className="text-left px-5 py-3 font-semibold text-white/50 hidden md:table-cell">Catatan</th>
                   <th className="text-right px-5 py-3 font-semibold text-white/50">Nominal</th>
                 </tr>
@@ -92,6 +93,14 @@ export default function PengeluaranPage() {
                       {new Date(item.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="px-5 py-3 text-white/80 font-medium">{item.sumber || '—'}</td>
+                    <td className="px-5 py-3">
+                      {item.kategori === 'pengeluaran_infaq'
+                        ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-900/40 text-purple-300 border border-purple-500/30">Infaq</span>
+                        : item.kategori === 'pengeluaran_kurban'
+                        ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-900/40 text-amber-300 border border-amber-500/30">Kurban</span>
+                        : <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/30 border border-white/10">Lama</span>
+                      }
+                    </td>
                     <td className="px-5 py-3 text-white/40 text-xs hidden md:table-cell max-w-[200px] truncate">{item.catatan || '—'}</td>
                     <td className="px-5 py-3 font-bold text-right text-red-400">
                       - {formatRp(item.nominal)}
