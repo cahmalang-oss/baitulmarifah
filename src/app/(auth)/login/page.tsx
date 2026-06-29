@@ -31,10 +31,11 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login gagal')
       }
 
-      if (data.user?.role === 'admin' || data.user?.role?.startsWith('petugas')) {
-        router.push('/admin')
+      const staffRoles = ['admin', 'bendahara', 'verifikator', 'petugas_verifikasi', 'petugas_keuangan'];
+      if (staffRoles.includes(data.user?.role)) {
+        router.push('/admin');
       } else {
-        router.push('/dashboard')
+        router.push('/dashboard');
       }
     } catch (err: any) {
       setError(err.message)

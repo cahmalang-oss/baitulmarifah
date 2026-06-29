@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth-middleware';
+﻿import { NextResponse } from 'next/server';
+import { requireBendahara } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET(request: Request) {
   try {
-    const payload = await requireAdmin();
+    const payload = await requireBendahara();
     if (payload instanceof Response) return payload;
 
     const { searchParams } = new URL(request.url);
@@ -45,7 +45,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const payload = await requireAdmin();
+    const payload = await requireBendahara();
     if (payload instanceof Response) return payload;
 
     const body = await request.json();
@@ -92,3 +92,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

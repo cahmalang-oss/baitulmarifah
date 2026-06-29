@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth-middleware';
+﻿import { NextResponse } from 'next/server';
+import { requireVerifikator } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET() {
   try {
-    const payload = await requireAdmin();
+    const payload = await requireVerifikator();
     if (payload instanceof Response) return payload;
     const supabase = createAdminClient();
     const { data: paketList, error } = await supabase
@@ -27,7 +27,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const payload = await requireAdmin();
+    const payload = await requireVerifikator();
     if (payload instanceof Response) return payload;
     const body = await request.json();
     const { nama, jenis, harga_target, deskripsi, syarat_ketentuan } = body;
@@ -40,3 +40,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

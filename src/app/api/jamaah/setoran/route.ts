@@ -61,6 +61,29 @@ export async function POST(request: Request) {
       }
     }
 
+    // Validasi: setoran donatur_tetap harus terdaftar
+    let donaturId: string | null = null;
+    if (kategori === 'donatur_tetap') {
+      const { data: donatur } = await supabase
+        .from('infaq_donatur_tetap')
+        .select('id')
+        .eq('user_id', payload.id)
+        .eq('aktif', true)
+        .maybeSingle();
+      if (!donatur) {
+        return NextResponse.json({ error: 'Anda belum terdaftar sebagai donatur tetap.' }, { status: 400 });
+      }
+      donaturId = donatur.id;
+    }
+
+    // Encode bulan_realisasi ke catatan jika donatur_tetap
+    const bulanRealisasi = formData.get('bulan_realisasi')?.toString() || null;
+    let finalCatatan = catatan.toString();
+    if (kategori === 'donatur_tetap' && bulanRealisasi) {
+      const meta = JSON.stringify({ bulan_realisasi: bulanRealisasi, donatur_id: donaturId });
+      finalCatatan = finalCatatan ? `${finalCatatan}\n__meta__${meta}` : `__meta__${meta}`;
+    }
+
     // Insert ke tabel setoran
     const { error: insertError } = await supabase.from('setoran').insert({
       jamaah_id: profile.id,
@@ -68,7 +91,7 @@ export async function POST(request: Request) {
       tanggal_setor: tanggal_setor.toString(),
       status: 'pending',
       bukti_url: filePath,
-      catatan: catatan.toString(),
+      catatan: finalCatatan,
       kategori
     });
 

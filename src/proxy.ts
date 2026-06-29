@@ -50,9 +50,8 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     
-    // 4. Admin/Petugas trying to access dashboard (if we strictly block them)
-    // The prompt says "Akses /dashboard/* → wajib login, role: jamaah"
-    if (isDashboard && ['admin', 'petugas_verifikasi', 'petugas_keuangan'].includes(role)) {
+    // 4. Staff trying to access dashboard → redirect ke admin
+    if (isDashboard && ['admin', 'petugas_verifikasi', 'petugas_keuangan', 'bendahara', 'verifikator'].includes(role)) {
       url.pathname = '/admin';
       return NextResponse.redirect(url);
     }

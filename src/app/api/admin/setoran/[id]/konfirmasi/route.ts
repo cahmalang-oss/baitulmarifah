@@ -17,7 +17,7 @@ export async function POST(
     // 1. Ambil data setoran & jamaah
     const { data: setoran, error: fetchError } = await supabase
       .from('setoran')
-      .select('id, jumlah, status, kategori, jamaah_id, jamaah_profile(id, user_id, users(nama, no_wa))')
+      .select('id, jumlah, status, kategori, catatan, jamaah_id, jamaah_profile(id, user_id, users(nama, no_wa))')
       .eq('id', id)
       .single();
 
@@ -81,8 +81,66 @@ export async function POST(
           throw saldoError;
         }
       }
+    } else if (kategori === 'donatur_tetap') {
+      // Parse meta dari catatan untuk dapat donatur_id dan bulan_realisasi
+      const catatanRaw = (setoran as any).catatan || '';
+      let donaturId: string | null = null;
+      let bulanRealisasi: string = new Date().toISOString().split('T')[0].slice(0, 7) + '-01';
+
+      const metaMatch = catatanRaw.match(/__meta__(\{.*\})/);
+      if (metaMatch) {
+        try {
+          const meta = JSON.parse(metaMatch[1]);
+          donaturId = meta.donatur_id;
+          bulanRealisasi = meta.bulan_realisasi || bulanRealisasi;
+        } catch {}
+      }
+
+      if (!donaturId) {
+        // Fallback: cari donatur_id dari user_id jamaah
+        const { data: donatur } = await supabase
+          .from('infaq_donatur_tetap')
+          .select('id')
+          .eq('user_id', jamaahProfile?.user_id)
+          .eq('aktif', true)
+          .maybeSingle();
+        donaturId = donatur?.id || null;
+      }
+
+      if (!donaturId) {
+        try { await supabase.from('setoran').update({ status: 'pending', verified_by: null, verified_at: null }).eq('id', id); } catch {}
+        return NextResponse.json({ error: 'Data donatur tetap tidak ditemukan' }, { status: 400 });
+      }
+
+      // Buat realisasi donatur tetap
+      const { error: realisasiError } = await supabase.from('infaq_donatur_realisasi').insert({
+        donatur_id: donaturId,
+        bulan: bulanRealisasi,
+        nominal_realisasi: jumlahSetoran,
+        status: 'lunas',
+        tanggal_bayar: new Date().toISOString().split('T')[0],
+        catatan: `Konfirmasi setoran ID: ${id}`,
+        verifikasi_oleh: payload.id,
+      });
+
+      if (realisasiError) {
+        try { await supabase.from('setoran').update({ status: 'pending', verified_by: null, verified_at: null }).eq('id', id); } catch {}
+        throw realisasiError;
+      }
+
+      // Catat juga ke kas_transaksi
+      await supabase.from('kas_transaksi').insert({
+        jenis: 'masuk',
+        kategori: 'infaq_donatur_tetap',
+        nominal: jumlahSetoran,
+        sumber: `Donatur Tetap - ${namaJamaah}`,
+        catatan: `Bulan: ${bulanRealisasi}, setoran ID: ${id}`,
+        tanggal: new Date().toISOString().split('T')[0],
+        input_oleh: payload.id,
+      });
+
     } else {
-      // kategori === 'infaq': masukkan ke kas_transaksi
+      // kategori === 'infaq': masukkan ke kas_transaksi sebagai insidentil
       const { error: kasError } = await supabase.from('kas_transaksi').insert({
         jenis: 'masuk',
         kategori: 'infaq_insidentil',

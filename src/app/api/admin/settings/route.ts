@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth-middleware';
+﻿import { NextResponse } from 'next/server';
+import { requireOnlyAdmin } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET() {
@@ -22,7 +22,7 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   try {
-    const payload = await requireAdmin();
+    const payload = await requireOnlyAdmin();
     if (payload instanceof Response) return payload;
 
     const body = await request.json();
@@ -51,3 +51,4 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

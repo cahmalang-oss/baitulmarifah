@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth-middleware';
+﻿import { NextResponse } from 'next/server';
+import { requireVerifikator } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { hashPin } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function GET(request: Request) {
   try {
-    const payload = await requireAdmin();
+    const payload = await requireVerifikator();
     if (payload instanceof Response) return payload;
 
     const supabase = createAdminClient();
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const payload = await requireAdmin();
+    const payload = await requireVerifikator();
     if (payload instanceof Response) return payload;
 
     const body = await request.json();
@@ -91,3 +91,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Gagal menambahkan jamaah' }, { status: 500 });
   }
 }
+

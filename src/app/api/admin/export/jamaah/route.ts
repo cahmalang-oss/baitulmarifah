@@ -1,11 +1,11 @@
-import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth-middleware';
+﻿import { NextResponse } from 'next/server';
+import { requireBendahara } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sanitizeCSVField, CSV_BOM } from '@/lib/csv';
 
 export async function GET() {
   try {
-    const payload = await requireAdmin();
+    const payload = await requireBendahara();
     if (payload instanceof Response) return payload;
     const supabase = createAdminClient();
     const { data, error } = await supabase
@@ -37,3 +37,4 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
