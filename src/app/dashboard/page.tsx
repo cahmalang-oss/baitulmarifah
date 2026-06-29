@@ -57,13 +57,11 @@ export default async function DashboardPage() {
           <div className="flex-1">
             <p className="text-[#C9A84C] font-bold text-sm">Belum Memilih Paket Qurban</p>
             <p className="text-white/60 text-xs mt-0.5 mb-3">Hubungi admin atau pilih paket melalui link yang dibagikan untuk mulai menabung.</p>
-            <a
-              href="/api/auth/logout"
-              className="text-xs text-white/40 underline"
-              onClick={async (e) => { e.preventDefault(); await fetch('/api/auth/logout', { method: 'POST' }); window.location.href = '/login'; }}
-            >
-              Bukan akun Anda? Logout
-            </a>
+            <form action="/api/auth/logout" method="POST">
+              <button type="submit" className="text-xs text-white/40 underline">
+                Bukan akun Anda? Logout
+              </button>
+            </form>
           </div>
         </div>
       )}
