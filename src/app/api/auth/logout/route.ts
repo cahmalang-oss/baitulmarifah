@@ -13,5 +13,5 @@ export async function POST(request: Request) {
     console.error('Error signing out of supabase', e)
   }
 
-  return NextResponse.redirect(new URL('/login', request.url))
+  return NextResponse.redirect(new URL('/login', request.url), { status: 303 })
 }
