@@ -192,7 +192,15 @@ export default function TvPage() {
   }
   const tickerText = allTickerItems.join('   ·   ');
 
-  const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const todayDate = new Date();
+  const today = todayDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const todayHijri = (() => {
+    try {
+      return todayDate.toLocaleDateString('id-ID-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch {
+      return '';
+    }
+  })();
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#0A0F1E', color: 'white', fontFamily: 'system-ui, -apple-system, sans-serif', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -205,6 +213,7 @@ export default function TvPage() {
           <div>
             <div style={{ fontWeight: 700, fontSize: 20, color: '#C9A84C', letterSpacing: '-0.5px' }}>Masjid BaitulMarifah</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>{today}</div>
+            {todayHijri && <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.6)', marginTop: 1 }}>{todayHijri} H</div>}
           </div>
         </div>
 
