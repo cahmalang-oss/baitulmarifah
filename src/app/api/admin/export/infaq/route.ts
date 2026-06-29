@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireBendahara } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sanitizeCSVField, CSV_BOM } from '@/lib/csv';
-import { toXlsxBuffer } from '@/lib/xlsx-export';
+import { toXlsxBlob } from '@/lib/xlsx-export';
 
 export async function GET(request: Request) {
   try {
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
     ] as (string | number)[]);
     const filename = bulan ? `infaq-${bulan}` : `infaq-${tahun}`;
     if (format === 'xlsx') {
-      const buf = toXlsxBuffer(headers, rawRows);
+      const buf = toXlsxBlob(headers, rawRows);
       return new NextResponse(buf, {
         headers: {
           'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
