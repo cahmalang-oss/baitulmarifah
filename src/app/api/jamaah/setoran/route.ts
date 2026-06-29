@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
     if (uploadError) {
       console.error('Storage Upload Error:', uploadError);
-      return NextResponse.json({ error: 'Gagal mengunggah foto bukti' }, { status: 500 });
+      return NextResponse.json({ error: `Gagal mengunggah foto bukti: ${uploadError.message}` }, { status: 500 });
     }
 
     // Insert ke tabel setoran
