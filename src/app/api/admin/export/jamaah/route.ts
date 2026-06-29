@@ -1,12 +1,15 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireBendahara } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sanitizeCSVField, CSV_BOM } from '@/lib/csv';
+import { toXlsxBuffer } from '@/lib/xlsx-export';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const payload = await requireBendahara();
     if (payload instanceof Response) return payload;
+    const { searchParams } = new URL(request.url);
+    const format = searchParams.get('format');
     const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('jamaah_profile')
@@ -14,27 +17,37 @@ export async function GET() {
       .order('tanggal_daftar', { ascending: true });
     if (error) throw error;
     const headers = ['Nama Lengkap', 'No WA', 'Email', 'Paket', 'Saldo (Rp)', 'Tanggal Daftar'];
-    const rows = (data || []).map(j => {
+    const rawRows = (data || []).map(j => {
       const paket = Array.isArray(j.paket) ? j.paket[0] : j.paket;
       const user = Array.isArray(j.users) ? j.users[0] : j.users;
       return [
-        sanitizeCSVField(user?.nama || ''),
-        sanitizeCSVField(user?.no_wa || ''),
-        sanitizeCSVField(user?.email || ''),
-        sanitizeCSVField(paket?.nama || ''),
-        sanitizeCSVField(j.saldo || 0),
-        sanitizeCSVField(j.tanggal_daftar ? new Date(j.tanggal_daftar).toLocaleDateString('id-ID') : ''),
-      ].join(',');
+        user?.nama || '',
+        user?.no_wa || '',
+        user?.email || '',
+        paket?.nama || '',
+        j.saldo || 0,
+        j.tanggal_daftar ? new Date(j.tanggal_daftar).toLocaleDateString('id-ID') : '',
+      ] as (string | number)[];
     });
+    const date = new Date().toISOString().split('T')[0];
+    if (format === 'xlsx') {
+      const buf = toXlsxBuffer(headers, rawRows);
+      return new NextResponse(buf, {
+        headers: {
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'Content-Disposition': `attachment; filename="jamaah-${date}.xlsx"`,
+        },
+      });
+    }
+    const rows = rawRows.map(r => r.map(sanitizeCSVField).join(','));
     const csv = CSV_BOM + [headers.join(','), ...rows].join('\n');
     return new NextResponse(csv, {
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="jamaah-${new Date().toISOString().split('T')[0]}.csv"`,
+        'Content-Disposition': `attachment; filename="jamaah-${date}.csv"`,
       },
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

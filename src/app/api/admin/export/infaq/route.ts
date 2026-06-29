@@ -1,7 +1,8 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { requireBendahara } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sanitizeCSVField, CSV_BOM } from '@/lib/csv';
+import { toXlsxBuffer } from '@/lib/xlsx-export';
 
 export async function GET(request: Request) {
   try {
@@ -10,6 +11,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const tahun = searchParams.get('tahun') || new Date().getFullYear().toString();
     const bulan = searchParams.get('bulan');
+    const format = searchParams.get('format');
     const supabase = createAdminClient();
     let query = supabase
       .from('kas_transaksi')
@@ -17,7 +19,6 @@ export async function GET(request: Request) {
       .ilike('kategori', 'infaq%')
       .order('tanggal', { ascending: false });
     if (bulan && /^\d{4}-\d{2}$/.test(bulan)) {
-      // Calculate real last day of month
       const [y, m] = bulan.split('-').map(Number);
       const lastDay = new Date(y, m, 0).getDate();
       query = query.gte('tanggal', `${bulan}-01`).lte('tanggal', `${bulan}-${String(lastDay).padStart(2, '0')}`);
@@ -27,16 +28,26 @@ export async function GET(request: Request) {
     const { data, error } = await query;
     if (error) throw error;
     const headers = ['Tanggal', 'Kategori', 'Jenis', 'Nominal (Rp)', 'Sumber', 'Catatan', 'Tgl Input'];
-    const rows = (data || []).map(t => [
-      sanitizeCSVField(t.tanggal),
-      sanitizeCSVField(t.kategori),
-      sanitizeCSVField(t.jenis),
-      sanitizeCSVField(t.nominal || 0),
-      sanitizeCSVField(t.sumber || ''),
-      sanitizeCSVField(t.catatan || ''),
-      sanitizeCSVField(t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : ''),
-    ].join(','));
+    const rawRows = (data || []).map(t => [
+      t.tanggal || '',
+      t.kategori || '',
+      t.jenis || '',
+      t.nominal || 0,
+      t.sumber || '',
+      t.catatan || '',
+      t.created_at ? new Date(t.created_at).toLocaleDateString('id-ID') : '',
+    ] as (string | number)[]);
     const filename = bulan ? `infaq-${bulan}` : `infaq-${tahun}`;
+    if (format === 'xlsx') {
+      const buf = toXlsxBuffer(headers, rawRows);
+      return new NextResponse(buf, {
+        headers: {
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'Content-Disposition': `attachment; filename="${filename}.xlsx"`,
+        },
+      });
+    }
+    const rows = rawRows.map(r => r.map(sanitizeCSVField).join(','));
     const csv = CSV_BOM + [headers.join(','), ...rows].join('\n');
     return new NextResponse(csv, {
       headers: {
@@ -48,4 +59,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-
