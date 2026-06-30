@@ -14,6 +14,16 @@ function getJenis(url: string): Jenis | null {
   return j && j in TABLE ? (j as Jenis) : null;
 }
 
+// Kolom tanggal/waktu bertipe DATE/TIME di DB menolak string kosong "" — ubah jadi null.
+// (mis. mode tampil "flyer" pada kajian tidak mengisi tanggal/waktu)
+function sanitizeDateFields(fields: Record<string, any>) {
+  const result = { ...fields };
+  for (const key of ['tanggal', 'waktu']) {
+    if (result[key] === '') result[key] = null;
+  }
+  return result;
+}
+
 export async function GET(request: Request) {
   try {
     const payload = await requireHumas();
@@ -39,7 +49,7 @@ export async function POST(request: Request) {
     if (payload instanceof Response) return payload;
     const jenis = getJenis(request.url);
     if (!jenis) return NextResponse.json({ error: 'Parameter jenis wajib' }, { status: 400 });
-    const body = await request.json();
+    const body = sanitizeDateFields(await request.json());
     const supabase = createAdminClient();
     const { data, error } = await supabase.from(TABLE[jenis]).insert(body).select().single();
     if (error) throw error;
@@ -59,7 +69,7 @@ export async function PATCH(request: Request) {
     const { id, ...fields } = body;
     if (!id) return NextResponse.json({ error: 'id wajib' }, { status: 400 });
     const supabase = createAdminClient();
-    const { data, error } = await supabase.from(TABLE[jenis]).update(fields).eq('id', id).select().single();
+    const { data, error } = await supabase.from(TABLE[jenis]).update(sanitizeDateFields(fields)).eq('id', id).select().single();
     if (error) throw error;
     return NextResponse.json({ success: true, data });
   } catch (error: any) {
