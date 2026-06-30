@@ -112,15 +112,38 @@ export async function POST(
         return NextResponse.json({ error: 'Data donatur tetap tidak ditemukan' }, { status: 400 });
       }
 
-      // Buat realisasi donatur tetap
-      const { error: realisasiError } = await supabase.from('infaq_donatur_realisasi').insert({
-        donatur_id: donaturId,
-        bulan: bulanRealisasi,
-        nominal_realisasi: jumlahSetoran,
-        status: 'lunas',
-        catatan: `Konfirmasi setoran ID: ${id}`,
-        bukti_url: (setoran as any).bukti_url || null,
-      });
+      // Buat atau perbarui realisasi donatur tetap (satu baris per donatur per bulan)
+      const { data: existingRealisasi } = await supabase
+        .from('infaq_donatur_realisasi')
+        .select('id, nominal_realisasi')
+        .eq('donatur_id', donaturId)
+        .eq('bulan', bulanRealisasi)
+        .maybeSingle();
+
+      let realisasiError;
+      if (existingRealisasi) {
+        // Akumulasi nominal jika sudah ada realisasi bulan ini (mis. sebagian sudah dibayar)
+        const result = await supabase
+          .from('infaq_donatur_realisasi')
+          .update({
+            nominal_realisasi: (existingRealisasi.nominal_realisasi || 0) + jumlahSetoran,
+            status: 'lunas',
+            catatan: `Konfirmasi setoran ID: ${id}`,
+            bukti_url: (setoran as any).bukti_url || null,
+          })
+          .eq('id', existingRealisasi.id);
+        realisasiError = result.error;
+      } else {
+        const result = await supabase.from('infaq_donatur_realisasi').insert({
+          donatur_id: donaturId,
+          bulan: bulanRealisasi,
+          nominal_realisasi: jumlahSetoran,
+          status: 'lunas',
+          catatan: `Konfirmasi setoran ID: ${id}`,
+          bukti_url: (setoran as any).bukti_url || null,
+        });
+        realisasiError = result.error;
+      }
 
       if (realisasiError) {
         try { await supabase.from('setoran').update({ status: 'pending', verified_by: null, verified_at: null }).eq('id', id); } catch {}
