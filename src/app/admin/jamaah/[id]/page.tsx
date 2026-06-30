@@ -17,7 +17,7 @@ export default async function JamaahDetailPage({ params }: { params: Promise<{ i
     .select(`
       *,
       jamaah_profile (
-        id, saldo, no_va, tanggal_daftar, paket_id,
+        id, saldo, no_va, tanggal_daftar, paket_id, paket_status,
         paket (nama, harga_target)
       )
     `)
@@ -110,15 +110,22 @@ export default async function JamaahDetailPage({ params }: { params: Promise<{ i
               <div className="mt-3 pt-3 border-t border-white/10 relative z-10">
                 <p className="text-xs text-white/40 mb-0.5">Paket Qurban</p>
                 <p className="text-sm text-white font-medium">{profile?.paket?.nama || 'Belum dipilih'}</p>
+                {profile?.paket_status === 'pending' && (
+                  <span className="inline-block mt-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-900/40 text-amber-300 border border-amber-500/30">
+                    ⏳ Menunggu Verifikasi
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
-          <JamaahDetailForms 
-            userId={user.id} 
-            initialVa={profile?.no_va} 
-            initialPaketId={profile?.paket_id} 
-            paketList={paketList || []} 
+          <JamaahDetailForms
+            userId={user.id}
+            initialVa={profile?.no_va}
+            initialPaketId={profile?.paket_id}
+            paketList={paketList || []}
+            paketStatus={profile?.paket_status}
+            paketNama={profile?.paket?.nama}
           />
         </div>
 

@@ -141,6 +141,11 @@ export default function JamaahPage() {
                   <td className="px-6 py-4">
                     <div className="font-bold text-white">{p.nama}</div>
                     <div className="text-xs text-white/40 truncate max-w-[200px]">{p.paket?.nama || 'Belum pilih paket'}</div>
+                    {p.paket_status === 'pending' && (
+                      <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-900/40 text-amber-300 border border-amber-500/30">
+                        ⏳ Menunggu Verifikasi
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <a href={`https://wa.me/${p.no_wa}`} target="_blank" rel="noreferrer" className="text-[#C9A84C] hover:underline block">{p.no_wa}</a>

@@ -3,23 +3,49 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function JamaahDetailForms({ 
+export default function JamaahDetailForms({
   userId,
   initialVa,
   initialPaketId,
-  paketList
-}: { 
+  paketList,
+  paketStatus,
+  paketNama,
+}: {
   userId: string;
   initialVa: string | null;
   initialPaketId: string | null;
   paketList: any[];
+  paketStatus?: string | null;
+  paketNama?: string | null;
 }) {
   const router = useRouter();
   const [va, setVa] = useState(initialVa || '');
   const [paketId, setPaketId] = useState(initialPaketId || '');
-  
+
   const [loadingVa, setLoadingVa] = useState(false);
   const [loadingPaket, setLoadingPaket] = useState(false);
+  const [loadingVerifikasi, setLoadingVerifikasi] = useState(false);
+
+  const handleVerifikasiPaket = async (action: 'approve_paket' | 'reject_paket') => {
+    if (action === 'reject_paket' && !confirm('Tolak pendaftaran paket jamaah ini?')) return;
+    setLoadingVerifikasi(true);
+    try {
+      const res = await fetch(`/api/admin/jamaah/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      if (res.ok) {
+        router.refresh();
+      } else {
+        const data = await res.json();
+        alert('Gagal: ' + data.error);
+      }
+    } catch {
+      alert('Terjadi kesalahan jaringan');
+    }
+    setLoadingVerifikasi(false);
+  };
 
   const handleUpdateVa = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +92,33 @@ export default function JamaahDetailForms({
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div className="space-y-6 mt-6">
+      {paketStatus === 'pending' && (
+        <div className="bg-amber-900/20 border border-amber-500/30 rounded-2xl p-5">
+          <p className="text-amber-300 font-bold text-sm mb-1">⏳ Pendaftaran Paket Menunggu Verifikasi</p>
+          <p className="text-white/60 text-xs mb-4">
+            Jamaah mendaftar mandiri untuk paket <strong className="text-white">{paketNama || '-'}</strong>. Verifikasi untuk mengaktifkan, atau tolak jika tidak valid.
+          </p>
+          <div className="flex gap-2">
+            <button
+              disabled={loadingVerifikasi}
+              onClick={() => handleVerifikasiPaket('approve_paket')}
+              className="flex-1 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl text-sm transition-colors disabled:opacity-50"
+            >
+              ✓ Setujui
+            </button>
+            <button
+              disabled={loadingVerifikasi}
+              onClick={() => handleVerifikasiPaket('reject_paket')}
+              className="flex-1 py-2 bg-red-900/40 hover:bg-red-900/60 text-red-300 font-bold rounded-xl text-sm transition-colors disabled:opacity-50 border border-red-500/30"
+            >
+              ✗ Tolak
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <form onSubmit={handleUpdateVa} className="bg-white/5 border border-white/10 rounded-2xl p-5">
         <h3 className="text-white font-bold mb-4">Virtual Account</h3>
         <input 
@@ -97,6 +149,7 @@ export default function JamaahDetailForms({
           {loadingPaket ? 'Menyimpan...' : 'Simpan Paket'}
         </button>
       </form>
+      </div>
     </div>
   );
 }

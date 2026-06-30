@@ -27,12 +27,22 @@ export async function POST(request: Request) {
     // Dapatkan jamaah_profile_id
     const { data: profile } = await supabase
       .from('jamaah_profile')
-      .select('id')
+      .select('id, paket_id, paket_status')
       .eq('user_id', payload.id)
       .single();
 
     if (!profile) {
       return NextResponse.json({ error: 'Profil jamaah tidak ditemukan' }, { status: 404 });
+    }
+
+    // Validasi: setoran kurban hanya boleh jika paket sudah disetujui (aktif)
+    if (kategori === 'kurban') {
+      if (!profile.paket_id) {
+        return NextResponse.json({ error: 'Anda belum terdaftar dalam paket qurban. Silakan daftar paket terlebih dahulu.' }, { status: 400 });
+      }
+      if (profile.paket_status === 'pending') {
+        return NextResponse.json({ error: 'Pendaftaran paket Anda masih menunggu verifikasi admin.' }, { status: 400 });
+      }
     }
 
     // Upload ke Supabase Storage

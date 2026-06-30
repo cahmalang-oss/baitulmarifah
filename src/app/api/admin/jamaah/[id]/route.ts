@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth-middleware';
+import { requireVerifikator } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function PUT(
@@ -8,7 +8,7 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const payload = await requireAdmin();
+    const payload = await requireVerifikator();
     if (payload instanceof Response) return payload;
 
     const body = await request.json();
@@ -38,18 +38,56 @@ export async function PUT(
 
     if (action === 'update_paket') {
       const { paket_id } = body;
-      
+
       const { data: profile, error: profileErr } = await supabase
         .from('jamaah_profile')
         .select('id')
         .eq('user_id', id)
         .single();
-        
+
+      if (profileErr || !profile) return NextResponse.json({ error: 'Profil jamaah tidak ditemukan' }, { status: 404 });
+
+      // Admin yang set langsung dianggap otomatis aktif (tidak perlu verifikasi lagi)
+      const { error } = await supabase
+        .from('jamaah_profile')
+        .update({ paket_id: paket_id || null, paket_status: paket_id ? 'aktif' : null })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+      return NextResponse.json({ success: true });
+    }
+
+    if (action === 'approve_paket') {
+      const { data: profile, error: profileErr } = await supabase
+        .from('jamaah_profile')
+        .select('id, paket_id')
+        .eq('user_id', id)
+        .single();
+
+      if (profileErr || !profile) return NextResponse.json({ error: 'Profil jamaah tidak ditemukan' }, { status: 404 });
+      if (!profile.paket_id) return NextResponse.json({ error: 'Jamaah belum memilih paket' }, { status: 400 });
+
+      const { error } = await supabase
+        .from('jamaah_profile')
+        .update({ paket_status: 'aktif' })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+      return NextResponse.json({ success: true });
+    }
+
+    if (action === 'reject_paket') {
+      const { data: profile, error: profileErr } = await supabase
+        .from('jamaah_profile')
+        .select('id')
+        .eq('user_id', id)
+        .single();
+
       if (profileErr || !profile) return NextResponse.json({ error: 'Profil jamaah tidak ditemukan' }, { status: 404 });
 
       const { error } = await supabase
         .from('jamaah_profile')
-        .update({ paket_id: paket_id || null })
+        .update({ paket_id: null, paket_status: null })
         .eq('id', profile.id);
 
       if (error) throw error;

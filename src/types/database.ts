@@ -58,6 +58,7 @@ export interface Database {
           no_va: string | null
           tanggal_daftar: string | null
           grup_id: string | null
+          paket_status: string | null
         }
         Insert: Omit<Database['public']['Tables']['jamaah_profile']['Row'], 'id' | 'saldo'> & { id?: string, saldo?: number, tanggal_daftar?: string }
         Update: Partial<Database['public']['Tables']['jamaah_profile']['Insert']>

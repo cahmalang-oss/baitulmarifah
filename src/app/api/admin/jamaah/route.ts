@@ -15,7 +15,7 @@ export async function GET(request: Request) {
       .from('users')
       .select(`
         id, nama, no_wa, status, created_at,
-        jamaah_profile ( id, saldo, no_va, paket (nama, harga_target) )
+        jamaah_profile ( id, saldo, no_va, paket_status, paket (nama, harga_target) )
       `)
       .eq('role', 'jamaah')
       .order('created_at', { ascending: false });
@@ -32,7 +32,8 @@ export async function GET(request: Request) {
       profile_id: item.jamaah_profile?.[0]?.id,
       saldo: item.jamaah_profile?.[0]?.saldo || 0,
       no_va: item.jamaah_profile?.[0]?.no_va,
-      paket: item.jamaah_profile?.[0]?.paket
+      paket: item.jamaah_profile?.[0]?.paket,
+      paket_status: item.jamaah_profile?.[0]?.paket_status
     }));
 
     return NextResponse.json({ data: formattedData });

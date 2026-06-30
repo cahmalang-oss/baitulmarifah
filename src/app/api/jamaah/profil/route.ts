@@ -11,7 +11,7 @@ export async function GET() {
     const supabase = createAdminClient();
     const { data: profile } = await supabase
       .from('jamaah_profile')
-      .select('id, paket_id, saldo')
+      .select('id, paket_id, saldo, paket_status, paket(nama, jenis, harga_target, deskripsi)')
       .eq('user_id', payload.id)
       .single();
 
