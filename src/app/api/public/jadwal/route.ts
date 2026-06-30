@@ -15,6 +15,7 @@ export async function GET() {
         .eq('aktif', true)
         .gte('tanggal', today)
         .order('tanggal', { ascending: true })
+        .order('waktu', { ascending: true, nullsFirst: false })
         .limit(5),
       supabase.from('jadwal_imam')
         .select('id, nama_imam, jenis, tanggal, tema_khutbah, keterangan, mode_tampil, flyer_url, foto_imam_url')

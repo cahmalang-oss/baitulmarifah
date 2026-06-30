@@ -63,13 +63,29 @@ function SlideKeuangan({ tv }: { tv: TvData }) {
 }
 
 /* ── Slide 2: Jadwal ── */
-function SlideJadwal({ jadwal }: { jadwal: JadwalData }) {
-  const JENIS_LABEL: Record<string, string> = { jumat: "Jum'at", idul_fitri: 'Idul Fitri', idul_adha: 'Idul Adha' };
+function JadwalMeta({ tanggal, waktu, lokasi }: { tanggal: string; waktu?: string | null; lokasi?: string | null }) {
   const fmtDate = (d: string) => {
     if (!d) return '';
     const dt = new Date(d + 'T00:00:00');
     return dt.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
   };
+  return (
+    <div className="flex items-center gap-2 flex-wrap mt-2">
+      <span className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1 rounded-lg" style={{ background: 'rgba(201,168,76,0.18)', color: '#E8CD7A' }}>
+        📅 {fmtDate(tanggal)}
+      </span>
+      {waktu && (
+        <span className="inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1 rounded-lg" style={{ background: 'rgba(34,211,238,0.15)', color: '#67e8f9' }}>
+          🕐 {waktu.slice(0, 5)} WIB
+        </span>
+      )}
+      {lokasi && <span className="text-xs text-white/40">📍 {lokasi}</span>}
+    </div>
+  );
+}
+
+function SlideJadwal({ jadwal }: { jadwal: JadwalData }) {
+  const JENIS_LABEL: Record<string, string> = { jumat: "Jum'at", idul_fitri: 'Idul Fitri', idul_adha: 'Idul Adha' };
 
   return (
     <div className="flex-1 grid grid-cols-2 gap-5 p-8 overflow-hidden">
@@ -84,7 +100,7 @@ function SlideJadwal({ jadwal }: { jadwal: JadwalData }) {
               k.mode_tampil === 'flyer' && k.flyer_url ? (
                 <div key={k.id} className="rounded-2xl overflow-hidden bg-black/20">
                   <img src={k.flyer_url} className="w-full max-h-[420px] object-contain" />
-                  <p className="text-white/40 text-xs px-3 py-2">{fmtDate(k.tanggal)} {k.waktu && `· ${k.waktu}`} {k.lokasi && `· ${k.lokasi}`}</p>
+                  <div className="px-3 py-2"><JadwalMeta tanggal={k.tanggal} waktu={k.waktu} lokasi={k.lokasi} /></div>
                 </div>
               ) : (
                 <div key={k.id} className="flex gap-3 items-start">
@@ -94,7 +110,7 @@ function SlideJadwal({ jadwal }: { jadwal: JadwalData }) {
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-white text-lg leading-tight">{k.judul || '—'}</p>
                     {k.pemateri && <p className="text-[#C9A84C] text-sm mt-0.5">{k.pemateri}</p>}
-                    <p className="text-white/40 text-xs mt-1">{fmtDate(k.tanggal)} {k.waktu && `· ${k.waktu}`} {k.lokasi && `· ${k.lokasi}`}</p>
+                    <JadwalMeta tanggal={k.tanggal} waktu={k.waktu} lokasi={k.lokasi} />
                   </div>
                 </div>
               )
@@ -114,7 +130,10 @@ function SlideJadwal({ jadwal }: { jadwal: JadwalData }) {
               im.mode_tampil === 'flyer' && im.flyer_url ? (
                 <div key={im.id} className="rounded-2xl overflow-hidden bg-black/20">
                   <img src={im.flyer_url} className="w-full max-h-[300px] object-contain" />
-                  <p className="text-white/40 text-xs px-3 py-2">{JENIS_LABEL[im.jenis] || im.jenis} · {fmtDate(im.tanggal)}</p>
+                  <div className="px-3 py-2">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#C9A84C]/40 text-[#C9A84C] mr-2">{JENIS_LABEL[im.jenis] || im.jenis}</span>
+                    <JadwalMeta tanggal={im.tanggal} />
+                  </div>
                 </div>
               ) : (
                 <div key={im.id} className="flex gap-3 items-start">
@@ -129,7 +148,7 @@ function SlideJadwal({ jadwal }: { jadwal: JadwalData }) {
                     </div>
                     <p className="font-bold text-white text-lg leading-tight">{im.nama_imam || '—'}</p>
                     {im.tema_khutbah && <p className="text-white/50 text-sm mt-0.5 line-clamp-1">{im.tema_khutbah}</p>}
-                    <p className="text-white/40 text-xs mt-0.5">{fmtDate(im.tanggal)}</p>
+                    <JadwalMeta tanggal={im.tanggal} />
                   </div>
                 </div>
               )
