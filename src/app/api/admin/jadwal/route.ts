@@ -14,13 +14,13 @@ function getJenis(url: string): Jenis | null {
   return j && j in TABLE ? (j as Jenis) : null;
 }
 
-// Kolom tanggal/waktu bertipe DATE/TIME di DB menolak string kosong "" — ubah jadi null.
-// (mis. mode tampil "flyer" pada kajian tidak mengisi tanggal/waktu)
+// Kolom waktu bertipe TIME menolak string kosong "" — ubah jadi null.
+// Kolom tanggal bertipe DATE NOT NULL — string kosong (mis. mode tampil
+// "flyer" pada kajian yang tidak mengisi tanggal) didefault ke hari ini.
 function sanitizeDateFields(fields: Record<string, any>) {
   const result = { ...fields };
-  for (const key of ['tanggal', 'waktu']) {
-    if (result[key] === '') result[key] = null;
-  }
+  if (result.tanggal === '') result.tanggal = new Date().toISOString().split('T')[0];
+  if (result.waktu === '') result.waktu = null;
   return result;
 }
 
