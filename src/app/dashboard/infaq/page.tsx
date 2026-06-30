@@ -6,10 +6,51 @@ import { useRouter } from 'next/navigation';
 const fmt = (n: number) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
 
+function MilestoneCapaian({ donatur, riwayat }: { donatur: any; riwayat: any[] }) {
+  const tahunIni = new Date().getFullYear();
+  const targetTahunan = donatur.nominal_komitmen * 12;
+  const totalRealisasi = riwayat
+    .filter(r => new Date(r.bulan).getFullYear() === tahunIni)
+    .reduce((sum, r) => sum + (r.nominal_realisasi || 0), 0);
+  const persen = Math.min(100, Math.round((totalRealisasi / targetTahunan) * 100));
+  const bulanTercapai = riwayat.filter(r => new Date(r.bulan).getFullYear() === tahunIni).length;
+
+  return (
+    <div className="mb-4 bg-white/5 border border-white/10 rounded-xl p-4">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm font-bold text-white">🎯 Capaian Target {tahunIni}</p>
+        <span className="text-xs font-bold text-[#C9A84C]">{persen}%</span>
+      </div>
+      <div className="w-full h-3 rounded-full bg-white/10 overflow-hidden mb-2">
+        <div className="h-full rounded-full bg-gradient-to-r from-[#C9A84C] to-[#E8CD7A] transition-all duration-700"
+          style={{ width: `${persen}%` }} />
+      </div>
+      <div className="flex justify-between text-xs text-white/50">
+        <span>{fmt(totalRealisasi)} terkumpul</span>
+        <span>Target {fmt(targetTahunan)}</span>
+      </div>
+
+      {/* Milestone bulan */}
+      <div className="grid grid-cols-12 gap-1 mt-3">
+        {Array.from({ length: 12 }, (_, i) => {
+          const bulanKe = i + 1;
+          const tercapai = bulanKe <= bulanTercapai;
+          return (
+            <div key={i} className={`h-1.5 rounded-full ${tercapai ? 'bg-[#C9A84C]' : 'bg-white/10'}`}
+              title={`Bulan ${bulanKe}`} />
+          );
+        })}
+      </div>
+      <p className="text-[10px] text-white/30 mt-1.5">{bulanTercapai} dari 12 bulan tercatat tahun ini</p>
+    </div>
+  );
+}
+
 export default function InfaqPage() {
   const router = useRouter();
   const [tab, setTab] = useState<'insidentil' | 'donatur_tetap'>('insidentil');
   const [donaturData, setDonaturData] = useState<any>(null);
+  const [riwayatRealisasi, setRiwayatRealisasi] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -31,6 +72,7 @@ export default function InfaqPage() {
       fetch('/api/public/settings').then(r => r.json()),
     ]).then(([donaturJson, settingsJson]) => {
       if (donaturJson.donatur) setDonaturData(donaturJson.donatur);
+      if (donaturJson.riwayat) setRiwayatRealisasi(donaturJson.riwayat);
       if (settingsJson.settings) setBankInfo(settingsJson.settings);
       setLoadingData(false);
     }).catch(() => setLoadingData(false));
@@ -132,15 +174,18 @@ export default function InfaqPage() {
       {tab === 'donatur_tetap' && !loadingData && (
         <>
           {donaturData ? (
-            <div className="mb-4 bg-green-900/20 border border-green-500/20 rounded-xl p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-green-300 font-bold text-sm">✅ Terdaftar sebagai Donatur Tetap</p>
-                  <p className="text-white/50 text-xs mt-0.5">Komitmen: <strong className="text-white">{fmt(donaturData.nominal_komitmen)}</strong>/bulan</p>
-                  {donaturData.metode_bayar && <p className="text-white/40 text-xs">Metode: {donaturData.metode_bayar}</p>}
+            <>
+              <div className="mb-4 bg-green-900/20 border border-green-500/20 rounded-xl p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-green-300 font-bold text-sm">✅ Terdaftar sebagai Donatur Tetap</p>
+                    <p className="text-white/50 text-xs mt-0.5">Komitmen: <strong className="text-white">{fmt(donaturData.nominal_komitmen)}</strong>/bulan</p>
+                    {donaturData.metode_bayar && <p className="text-white/40 text-xs">Metode: {donaturData.metode_bayar}</p>}
+                  </div>
                 </div>
               </div>
-            </div>
+              <MilestoneCapaian donatur={donaturData} riwayat={riwayatRealisasi} />
+            </>
           ) : (
             <div className="mb-4 bg-yellow-900/20 border border-yellow-500/20 rounded-xl p-4">
               <p className="text-yellow-300 font-bold text-sm mb-1">Belum Terdaftar Donatur Tetap</p>
