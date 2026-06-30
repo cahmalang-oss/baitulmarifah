@@ -159,58 +159,66 @@ export default function KajianPage() {
                 </div>
               </div>
 
-              {form.mode_tampil === 'flyer' ? (
+              {form.mode_tampil === 'flyer' && (
                 <div>
                   <label className="text-xs text-white/50 mb-1 block">Upload Flyer</label>
                   <input ref={flyerRef} type="file" accept="image/*"
                     className="w-full text-sm text-white/60 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white/10 file:text-white/70 file:text-sm" />
                   {form.flyer_url && <img src={form.flyer_url} className="mt-2 rounded-lg h-24 object-cover" />}
                 </div>
-              ) : (
-                <>
+              )}
+
+              {form.mode_tampil !== 'flyer' && (
+                <div>
+                  <label className="text-xs text-white/50 mb-1 block">Judul Kajian</label>
+                  <input required value={form.judul} onChange={e => setForm(f => ({ ...f, judul: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C]" />
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                {form.mode_tampil !== 'flyer' && (
                   <div>
-                    <label className="text-xs text-white/50 mb-1 block">Judul Kajian</label>
-                    <input required value={form.judul} onChange={e => setForm(f => ({ ...f, judul: e.target.value }))}
+                    <label className="text-xs text-white/50 mb-1 block">Pemateri</label>
+                    <input value={form.pemateri} onChange={e => setForm(f => ({ ...f, pemateri: e.target.value }))}
                       className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C]" />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-white/50 mb-1 block">Pemateri</label>
-                      <input value={form.pemateri} onChange={e => setForm(f => ({ ...f, pemateri: e.target.value }))}
-                        className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C]" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-white/50 mb-1 block">Tanggal</label>
-                      <input required type="date" value={form.tanggal} onChange={e => setForm(f => ({ ...f, tanggal: e.target.value }))}
-                        className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C]" />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-white/50 mb-1 block">Waktu</label>
-                      <input type="time" value={form.waktu} onChange={e => setForm(f => ({ ...f, waktu: e.target.value }))}
-                        className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C]" />
-                    </div>
-                    <div>
-                      <label className="text-xs text-white/50 mb-1 block">Lokasi</label>
-                      <input value={form.lokasi} onChange={e => setForm(f => ({ ...f, lokasi: e.target.value }))}
-                        className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C]" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs text-white/50 mb-1 block">Keterangan</label>
-                    <textarea rows={2} value={form.keterangan} onChange={e => setForm(f => ({ ...f, keterangan: e.target.value }))}
-                      className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C] resize-none" />
-                  </div>
-                  {form.mode_tampil === 'manual_foto' && (
-                    <div>
-                      <label className="text-xs text-white/50 mb-1 block">Foto Penceramah</label>
-                      <input ref={fotoRef} type="file" accept="image/*"
-                        className="w-full text-sm text-white/60 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white/10 file:text-white/70 file:text-sm" />
-                      {form.foto_penceramah_url && <img src={form.foto_penceramah_url} className="mt-2 rounded-full h-16 w-16 object-cover" />}
-                    </div>
-                  )}
-                </>
+                )}
+                <div>
+                  <label className="text-xs text-white/50 mb-1 block">Tanggal <span className="text-red-400">*</span></label>
+                  <input required type="date" value={form.tanggal} onChange={e => setForm(f => ({ ...f, tanggal: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C]" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-white/50 mb-1 block">Waktu</label>
+                  <input type="time" value={form.waktu} onChange={e => setForm(f => ({ ...f, waktu: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C]" />
+                </div>
+                <div>
+                  <label className="text-xs text-white/50 mb-1 block">Lokasi</label>
+                  <input value={form.lokasi} onChange={e => setForm(f => ({ ...f, lokasi: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C]" />
+                </div>
+              </div>
+
+              {form.mode_tampil !== 'flyer' && (
+                <div>
+                  <label className="text-xs text-white/50 mb-1 block">Keterangan</label>
+                  <textarea rows={2} value={form.keterangan} onChange={e => setForm(f => ({ ...f, keterangan: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C] resize-none" />
+                </div>
+              )}
+
+              {form.mode_tampil === 'manual_foto' && (
+                <div>
+                  <label className="text-xs text-white/50 mb-1 block">Foto Penceramah</label>
+                  <input ref={fotoRef} type="file" accept="image/*"
+                    className="w-full text-sm text-white/60 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-white/10 file:text-white/70 file:text-sm" />
+                  {form.foto_penceramah_url && <img src={form.foto_penceramah_url} className="mt-2 rounded-full h-16 w-16 object-cover" />}
+                </div>
               )}
 
               <div className="flex items-center gap-2">
