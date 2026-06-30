@@ -113,6 +113,7 @@ export default function DonaturDetailPage() {
                 <th className="text-right px-5 py-3 font-semibold text-white/50">Komitmen</th>
                 <th className="text-right px-5 py-3 font-semibold text-white/50">Realisasi</th>
                 <th className="text-center px-5 py-3 font-semibold text-white/50">Status</th>
+                <th className="text-center px-5 py-3 font-semibold text-white/50">Bukti</th>
                 <th className="text-right px-5 py-3 font-semibold text-white/50">Aksi</th>
               </tr>
             </thead>
@@ -135,6 +136,20 @@ export default function DonaturDetailPage() {
                     </td>
                     <td className="px-5 py-3 text-center">
                       <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${st.cls}`}>{st.label}</span>
+                    </td>
+                    <td className="px-5 py-3 text-center">
+                      {real?.bukti_url ? (
+                        <a
+                          href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/bukti-transfer/${real.bukti_url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-[#C9A84C] font-medium hover:underline inline-flex items-center gap-1"
+                        >
+                          📎 Lihat
+                        </a>
+                      ) : (
+                        <span className="text-white/20 text-xs">—</span>
+                      )}
                     </td>
                     <td className="px-5 py-3 text-right">
                       {status !== 'lunas' && (

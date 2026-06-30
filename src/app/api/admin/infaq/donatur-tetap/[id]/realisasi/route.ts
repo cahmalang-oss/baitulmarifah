@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth-middleware';
+import { requireBendahara } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function POST(
@@ -8,14 +8,20 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const payload = await requireAdmin();
+    const payload = await requireBendahara();
     if (payload instanceof Response) return payload;
 
-    const body = await request.json();
-    const { bulan, nominal_realisasi, catatan } = body;
+    const formData = await request.formData();
+    const bulan = formData.get('bulan')?.toString();
+    const nominal_realisasi = formData.get('nominal_realisasi')?.toString();
+    const catatan = formData.get('catatan')?.toString() || '';
+    const bukti = formData.get('bukti') as File | null;
 
     if (!bulan || !nominal_realisasi) {
       return NextResponse.json({ error: 'Bulan dan nominal realisasi wajib diisi' }, { status: 400 });
+    }
+    if (!bukti) {
+      return NextResponse.json({ error: 'Bukti transfer wajib diunggah' }, { status: 400 });
     }
 
     // Konversi "YYYY-MM" ke "YYYY-MM-01" untuk kolom DATE
@@ -34,6 +40,18 @@ export async function POST(
       return NextResponse.json({ error: 'Donatur tidak ditemukan' }, { status: 404 });
     }
 
+    // Upload bukti ke storage
+    const fileExt = bukti.name.split('.').pop();
+    const filePath = `donatur-${id}-${Date.now()}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage
+      .from('bukti-transfer')
+      .upload(filePath, bukti);
+
+    if (uploadError) {
+      console.error('Storage Upload Error:', uploadError);
+      return NextResponse.json({ error: `Gagal mengunggah bukti: ${uploadError.message}` }, { status: 500 });
+    }
+
     const nominal = parseInt(nominal_realisasi);
     const status = nominal >= donatur.nominal_komitmen ? 'lunas' : 'kurang';
 
@@ -49,7 +67,7 @@ export async function POST(
     if (existing) {
       const result = await supabase
         .from('infaq_donatur_realisasi')
-        .update({ nominal_realisasi: nominal, status, catatan: catatan || null })
+        .update({ nominal_realisasi: nominal, status, catatan: catatan || null, bukti_url: filePath })
         .eq('id', existing.id)
         .select()
         .single();
@@ -58,7 +76,7 @@ export async function POST(
     } else {
       const result = await supabase
         .from('infaq_donatur_realisasi')
-        .insert({ donatur_id: id, bulan: bulanDate, nominal_realisasi: nominal, status, catatan: catatan || null })
+        .insert({ donatur_id: id, bulan: bulanDate, nominal_realisasi: nominal, status, catatan: catatan || null, bukti_url: filePath })
         .select()
         .single();
       realisasi = result.data;
@@ -68,7 +86,7 @@ export async function POST(
     if (realisasiErr) throw realisasiErr;
 
     // Insert ke kas_transaksi sebagai linked record
-    const { data: kasEntry, error: kasErr } = await supabase
+    const { error: kasErr } = await supabase
       .from('kas_transaksi')
       .insert({
         jenis: 'masuk',
@@ -78,10 +96,9 @@ export async function POST(
         catatan: `Realisasi infaq ${bulan.length === 7 ? bulan : bulan.slice(0, 7)}${catatan ? ' - ' + catatan : ''}`,
         tanggal: new Date().toISOString().split('T')[0],
         input_oleh: payload.id,
-        donatur_id: id
-      })
-      .select()
-      .single();
+        donatur_id: id,
+        bukti_url: filePath,
+      });
 
     if (kasErr) console.error('Kas entry error:', kasErr); // Non-fatal
 

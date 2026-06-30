@@ -20,18 +20,27 @@ export default function TambahInsidentilPage() {
     tanggal: today,
     catatan: '',
   });
+  const [bukti, setBukti] = useState<File | null>(null);
 
   const set = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!bukti) { setError('Bukti transfer (foto/PDF) wajib diunggah'); return; }
     setLoading(true);
     setError('');
     try {
+      const formData = new FormData();
+      formData.set('jenis', 'masuk');
+      formData.set('nominal', String(parseInt(form.nominal, 10)));
+      formData.set('sumber', form.sumber);
+      formData.set('tanggal', form.tanggal);
+      formData.set('catatan', form.catatan);
+      formData.set('bukti', bukti);
+
       const res = await fetch('/api/admin/infaq/insidentil', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, jenis: 'masuk', nominal: parseInt(form.nominal, 10) }),
+        body: formData,
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Gagal menyimpan'); setLoading(false); return; }
@@ -130,6 +139,20 @@ export default function TambahInsidentilPage() {
             className={`${INPUT_CLS} resize-none`}
             placeholder="Keterangan tambahan..."
           />
+        </div>
+
+        {/* Bukti Transfer */}
+        <div>
+          <label className="block text-sm font-medium text-white/70 mb-1">
+            Bukti Transfer (Foto/PDF) <span className="text-red-400">*</span>
+          </label>
+          <input
+            type="file" required
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            onChange={e => setBukti(e.target.files?.[0] || null)}
+            className="w-full text-sm text-white/60 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-[#C9A84C]/20 file:text-[#C9A84C] file:text-sm file:font-semibold hover:file:bg-[#C9A84C]/30 cursor-pointer"
+          />
+          <p className="text-xs text-white/30 mt-1.5">Wajib diisi sampai sistem VA & QRIS otomatis aktif.</p>
         </div>
 
         {/* Submit */}

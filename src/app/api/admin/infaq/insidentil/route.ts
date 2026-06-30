@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
     let query = supabase
       .from('kas_transaksi')
-      .select('id, jenis, nominal, sumber, catatan, tanggal', { count: 'exact' })
+      .select('id, jenis, nominal, sumber, catatan, tanggal, bukti_url', { count: 'exact' })
       .eq('kategori', 'infaq_insidentil')
       .order('tanggal', { ascending: false })
       .range(start, end);
@@ -47,8 +47,13 @@ export async function POST(request: Request) {
     const payload = await requireBendahara();
     if (payload instanceof Response) return payload;
 
-    const body = await request.json();
-    const { jenis, nominal, sumber, tanggal, catatan } = body;
+    const formData = await request.formData();
+    const jenis = formData.get('jenis')?.toString();
+    const nominal = Number(formData.get('nominal'));
+    const sumber = formData.get('sumber')?.toString() || '';
+    const tanggal = formData.get('tanggal')?.toString();
+    const catatan = formData.get('catatan')?.toString() || '';
+    const bukti = formData.get('bukti') as File | null;
 
     if (!jenis || !nominal || !tanggal) {
       return NextResponse.json({ error: 'Jenis, nominal, dan tanggal wajib diisi' }, { status: 400 });
@@ -59,8 +64,23 @@ export async function POST(request: Request) {
     if (new Date(tanggal) > new Date()) {
       return NextResponse.json({ error: 'Tanggal tidak boleh melebihi hari ini' }, { status: 400 });
     }
+    if (jenis === 'masuk' && !bukti) {
+      return NextResponse.json({ error: 'Bukti transfer wajib diunggah' }, { status: 400 });
+    }
 
     const supabase = createAdminClient();
+
+    let buktiUrl: string | null = null;
+    if (bukti) {
+      const fileExt = bukti.name.split('.').pop();
+      const filePath = `insidentil-${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('bukti-transfer').upload(filePath, bukti);
+      if (uploadError) {
+        console.error('Storage Upload Error:', uploadError);
+        return NextResponse.json({ error: `Gagal mengunggah bukti: ${uploadError.message}` }, { status: 500 });
+      }
+      buktiUrl = filePath;
+    }
 
     const { data, error } = await supabase
       .from('kas_transaksi')
@@ -71,7 +91,8 @@ export async function POST(request: Request) {
         sumber: sumber || '',
         catatan: catatan || null,
         tanggal,
-        input_oleh: payload.id
+        input_oleh: payload.id,
+        bukti_url: buktiUrl,
       })
       .select()
       .single();

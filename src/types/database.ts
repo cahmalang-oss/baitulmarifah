@@ -106,6 +106,7 @@ export interface Database {
           tanggal: string
           input_oleh: string | null
           donatur_id: string | null
+          bukti_url: string | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['kas_transaksi']['Row'], 'id' | 'created_at'> & { id?: string, created_at?: string }
@@ -120,6 +121,7 @@ export interface Database {
           status: 'lunas' | 'kurang' | 'belum_bayar'
           kas_transaksi_id: string | null
           catatan: string | null
+          bukti_url: string | null
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['infaq_donatur_realisasi']['Row'], 'id' | 'created_at' | 'status'> & { id?: string, created_at?: string, status?: 'lunas' | 'kurang' | 'belum_bayar' }

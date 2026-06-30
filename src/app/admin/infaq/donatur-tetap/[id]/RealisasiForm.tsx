@@ -17,18 +17,25 @@ interface Props {
 export default function RealisasiForm({ donaturId, bulan, komitmen, realisasiAwal, onSuccess }: Props) {
   const [nominal, setNominal] = useState(realisasiAwal > 0 ? String(realisasiAwal) : '');
   const [catatan, setCatatan] = useState('');
+  const [bukti, setBukti] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!bukti) { setError('Bukti transfer (foto/PDF) wajib diunggah'); return; }
     setLoading(true);
     setError('');
     try {
+      const formData = new FormData();
+      formData.set('bulan', bulan);
+      formData.set('nominal_realisasi', nominal);
+      formData.set('catatan', catatan);
+      formData.set('bukti', bukti);
+
       const res = await fetch(`/api/admin/infaq/donatur-tetap/${donaturId}/realisasi`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bulan, nominal_realisasi: parseInt(nominal), catatan }),
+        body: formData,
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Gagal menyimpan'); setLoading(false); return; }
@@ -60,6 +67,18 @@ export default function RealisasiForm({ donaturId, bulan, komitmen, realisasiAwa
         className="w-full px-4 py-2.5 bg-white/5 border border-white/15 text-white placeholder:text-white/25 rounded-xl focus:ring-2 focus:ring-[#C9A84C] outline-none text-sm"
         placeholder="Catatan (opsional)..."
       />
+      <div>
+        <label className="block text-xs text-white/50 mb-1.5">
+          Bukti Transfer (Foto/PDF) <span className="text-red-400">*</span>
+        </label>
+        <input
+          type="file" required
+          accept="image/jpeg,image/png,image/webp,application/pdf"
+          onChange={e => setBukti(e.target.files?.[0] || null)}
+          className="w-full text-xs text-white/60 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-[#C9A84C]/20 file:text-[#C9A84C] file:text-xs file:font-semibold hover:file:bg-[#C9A84C]/30 cursor-pointer"
+        />
+        <p className="text-[10px] text-white/30 mt-1">Wajib diisi sampai sistem VA & QRIS otomatis aktif.</p>
+      </div>
       <button
         type="submit" disabled={loading}
         className="w-full py-2.5 bg-[#C9A84C] text-[#0F172A] font-bold rounded-xl hover:bg-[#D4B869] transition-colors disabled:opacity-50 text-sm"

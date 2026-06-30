@@ -9,7 +9,10 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const now = new Date();
-    const bulan = searchParams.get('bulan') || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const bulanParam = searchParams.get('bulan') || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    // Kolom `bulan` di DB bertipe DATE (selalu tersimpan sebagai YYYY-MM-01) — normalisasi agar match
+    const bulan = /^\d{4}-\d{2}$/.test(bulanParam) ? `${bulanParam}-01` : bulanParam;
+    const isAllBulan = bulanParam === 'all';
 
     const supabase = createAdminClient();
 
@@ -22,13 +25,23 @@ export async function GET(request: Request) {
 
     if (error) throw error;
 
-    // Ambil realisasi bulan yang diminta
-    const { data: realisasiList } = await supabase
+    // Ambil realisasi bulan yang diminta (skip filter jika bulan=all, dipakai utk lookup info donatur saja)
+    let realisasiQuery = supabase
       .from('infaq_donatur_realisasi')
-      .select('donatur_id, nominal_realisasi')
-      .eq('bulan', bulan);
+      .select('donatur_id, nominal_realisasi, bulan')
+      .order('bulan', { ascending: false });
+    if (!isAllBulan) realisasiQuery = realisasiQuery.eq('bulan', bulan);
 
-    const realisasiMap = new Map(realisasiList?.map(r => [r.donatur_id, r.nominal_realisasi]) || []);
+    const { data: realisasiList, error: realisasiError } = await realisasiQuery;
+    if (realisasiError) console.error('Realisasi query error:', realisasiError);
+
+    // Saat isAllBulan, ambil realisasi terbaru per donatur (sudah di-sort desc); selain itu satu baris per donatur per bulan
+    const realisasiMap = new Map<string, number>();
+    for (const r of realisasiList || []) {
+      if (!realisasiMap.has(r.donatur_id as string)) {
+        realisasiMap.set(r.donatur_id as string, r.nominal_realisasi);
+      }
+    }
 
     // Gabungkan status
     const result = (donaturList || []).map(d => {

@@ -16,7 +16,7 @@ export async function GET(
 
     const { data, error } = await supabase
       .from('infaq_donatur_realisasi')
-      .select('id, bulan, nominal_realisasi, catatan, created_at')
+      .select('id, bulan, nominal_realisasi, catatan, bukti_url, created_at')
       .eq('donatur_id', id)
       .order('bulan', { ascending: false });
 

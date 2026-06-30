@@ -17,7 +17,7 @@ export async function POST(
     // 1. Ambil data setoran & jamaah
     const { data: setoran, error: fetchError } = await supabase
       .from('setoran')
-      .select('id, jumlah, status, kategori, catatan, jamaah_id, jamaah_profile(id, user_id, users(nama, no_wa))')
+      .select('id, jumlah, status, kategori, catatan, bukti_url, jamaah_id, jamaah_profile(id, user_id, users(nama, no_wa))')
       .eq('id', id)
       .single();
 
@@ -120,6 +120,7 @@ export async function POST(
         status: 'lunas',
         tanggal_bayar: new Date().toISOString().split('T')[0],
         catatan: `Konfirmasi setoran ID: ${id}`,
+        bukti_url: (setoran as any).bukti_url || null,
         verifikasi_oleh: payload.id,
       });
 
@@ -137,6 +138,7 @@ export async function POST(
         catatan: `Bulan: ${bulanRealisasi}, setoran ID: ${id}`,
         tanggal: new Date().toISOString().split('T')[0],
         input_oleh: payload.id,
+        bukti_url: (setoran as any).bukti_url || null,
       });
 
     } else {
@@ -149,6 +151,7 @@ export async function POST(
         catatan: `Konfirmasi setoran ID: ${id}`,
         tanggal: new Date().toISOString().split('T')[0],
         input_oleh: payload.id,
+        bukti_url: (setoran as any).bukti_url || null,
       });
 
       if (kasError) {

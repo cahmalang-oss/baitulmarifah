@@ -94,6 +94,7 @@ export default function InsidentilPage() {
                   <th className="text-left px-5 py-3 font-semibold text-white/50">Tanggal</th>
                   <th className="text-left px-5 py-3 font-semibold text-white/50">Sumber</th>
                   <th className="text-left px-5 py-3 font-semibold text-white/50 hidden md:table-cell">Catatan</th>
+                  <th className="text-center px-5 py-3 font-semibold text-white/50">Bukti</th>
                   <th className="text-right px-5 py-3 font-semibold text-white/50">Nominal</th>
                 </tr>
               </thead>
@@ -105,6 +106,20 @@ export default function InsidentilPage() {
                     </td>
                     <td className="px-5 py-3 text-white/80 font-medium">{item.sumber || '—'}</td>
                     <td className="px-5 py-3 text-white/40 text-xs hidden md:table-cell max-w-[200px] truncate">{item.catatan || '—'}</td>
+                    <td className="px-5 py-3 text-center">
+                      {item.bukti_url ? (
+                        <a
+                          href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/bukti-transfer/${item.bukti_url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-[#C9A84C] font-medium hover:underline"
+                        >
+                          📎 Lihat
+                        </a>
+                      ) : (
+                        <span className="text-white/20 text-xs">—</span>
+                      )}
+                    </td>
                     <td className={`px-5 py-3 font-bold text-right ${item.jenis === 'masuk' ? 'text-green-400' : 'text-red-400'}`}>
                       {item.jenis === 'masuk' ? '+' : '-'} {formatRp(item.nominal)}
                     </td>
