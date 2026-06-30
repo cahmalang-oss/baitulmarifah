@@ -60,7 +60,7 @@ export default function PaketPage() {
     try {
       const res = await fetch(`/api/admin/paket/${editForm.id}`, {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nama: editForm.nama, harga_target: editForm.harga_target, deskripsi: editForm.deskripsi, syarat_ketentuan: editForm.syarat_ketentuan }),
+        body: JSON.stringify({ nama: editForm.nama, jenis: editForm.jenis, harga_target: editForm.harga_target, deskripsi: editForm.deskripsi, syarat_ketentuan: editForm.syarat_ketentuan }),
       });
       if (res.ok) { setShowEditModal(false); fetchPaket(); }
       else { const err = await res.json(); alert(err.error); }
@@ -206,9 +206,18 @@ export default function PaketPage() {
                 <input type="text" value={editForm.nama} onChange={e => setEditForm({ ...editForm, nama: e.target.value })} required className={INPUT_CLS} />
               </div>
               <div>
+                <label className="block text-sm font-semibold text-white/70 mb-1">Jenis</label>
+                <select value={editForm.jenis} onChange={e => setEditForm({ ...editForm, jenis: e.target.value })} className={INPUT_CLS}>
+                  {JENIS_OPTIONS.map(o => <option key={o.value} value={o.value} className="bg-[#1E293B]">{o.label}</option>)}
+                </select>
+                {!JENIS_OPTIONS.some(o => o.value === editForm.jenis) && (
+                  <p className="text-xs text-yellow-400 mt-1">⚠️ Nilai jenis lama tidak standar: "{editForm.jenis}". Pilih ulang dari daftar di atas lalu simpan untuk memperbaiki.</p>
+                )}
+              </div>
+              <div>
                 <label className="block text-sm font-semibold text-white/70 mb-1">Target Harga (Rp)</label>
                 <input type="number" value={editForm.harga_target} onChange={e => setEditForm({ ...editForm, harga_target: e.target.value })} required className={INPUT_CLS} />
-                {editForm.peserta_count > 0 && <p className="text-xs text-red-400 mt-2 bg-red-900/20 p-2 rounded border border-red-500/30">⚠️ Hati-hati! {editForm.peserta_count} jamaah menggunakan paket ini.</p>}
+                {editForm.peserta_count > 0 && <p className="text-xs text-red-400 mt-2 bg-red-900/20 p-2 rounded border border-red-500/30">⚠️ Hati-hati! {editForm.peserta_count} jamaah menggunakan paket ini. Mengubah jenis dapat memengaruhi logika tampilan grup/progres.</p>}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-white/70 mb-1">Deskripsi</label>

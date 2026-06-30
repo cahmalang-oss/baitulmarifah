@@ -14,8 +14,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       const { error } = await supabase.from('paket').update({ status: body.aktif ? 'aktif' : 'arsip' }).eq('id', id);
       if (error) throw error;
     } else {
-      const { nama, harga_target, deskripsi, syarat_ketentuan } = body;
-      const { error } = await supabase.from('paket').update({ nama, harga_target: parseInt(harga_target), deskripsi: deskripsi || null, syarat_ketentuan: syarat_ketentuan || null }).eq('id', id);
+      const { nama, jenis, harga_target, deskripsi, syarat_ketentuan } = body;
+      const VALID_JENIS = ['kambing', 'sapi-patungan', 'tabungan'];
+      if (jenis && !VALID_JENIS.includes(jenis)) {
+        return NextResponse.json({ error: 'Jenis paket tidak valid' }, { status: 400 });
+      }
+      const { error } = await supabase.from('paket').update({ nama, jenis, harga_target: parseInt(harga_target), deskripsi: deskripsi || null, syarat_ketentuan: syarat_ketentuan || null }).eq('id', id);
       if (error) throw error;
     }
     return NextResponse.json({ success: true });
