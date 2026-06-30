@@ -181,6 +181,6 @@ export async function POST(
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Konfirmasi error:', error);
-    return NextResponse.json({ error: 'Gagal memproses konfirmasi' }, { status: 500 });
+    return NextResponse.json({ error: `Gagal memproses konfirmasi: ${error?.message || error?.toString?.() || 'unknown error'}` }, { status: 500 });
   }
 }

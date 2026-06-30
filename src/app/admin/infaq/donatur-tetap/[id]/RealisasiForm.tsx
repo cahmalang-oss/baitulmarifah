@@ -23,7 +23,6 @@ export default function RealisasiForm({ donaturId, bulan, komitmen, realisasiAwa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bukti) { setError('Bukti transfer (foto/PDF) wajib diunggah'); return; }
     setLoading(true);
     setError('');
     try {
@@ -31,7 +30,7 @@ export default function RealisasiForm({ donaturId, bulan, komitmen, realisasiAwa
       formData.set('bulan', bulan);
       formData.set('nominal_realisasi', nominal);
       formData.set('catatan', catatan);
-      formData.set('bukti', bukti);
+      if (bukti) formData.set('bukti', bukti);
 
       const res = await fetch(`/api/admin/infaq/donatur-tetap/${donaturId}/realisasi`, {
         method: 'POST',
@@ -69,15 +68,15 @@ export default function RealisasiForm({ donaturId, bulan, komitmen, realisasiAwa
       />
       <div>
         <label className="block text-xs text-white/50 mb-1.5">
-          Bukti Transfer (Foto/PDF) <span className="text-red-400">*</span>
+          Bukti Transfer (Foto/PDF) <span className="text-white/30 font-normal">(opsional)</span>
         </label>
         <input
-          type="file" required
+          type="file"
           accept="image/jpeg,image/png,image/webp,application/pdf"
           onChange={e => setBukti(e.target.files?.[0] || null)}
           className="w-full text-xs text-white/60 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-[#C9A84C]/20 file:text-[#C9A84C] file:text-xs file:font-semibold hover:file:bg-[#C9A84C]/30 cursor-pointer"
         />
-        <p className="text-[10px] text-white/30 mt-1">Wajib diisi sampai sistem VA & QRIS otomatis aktif.</p>
+        <p className="text-[10px] text-white/30 mt-1">Lampirkan jika ada. Untuk setoran tunai langsung boleh dikosongkan.</p>
       </div>
       <button
         type="submit" disabled={loading}

@@ -20,9 +20,6 @@ export async function POST(
     if (!bulan || !nominal_realisasi) {
       return NextResponse.json({ error: 'Bulan dan nominal realisasi wajib diisi' }, { status: 400 });
     }
-    if (!bukti) {
-      return NextResponse.json({ error: 'Bukti transfer wajib diunggah' }, { status: 400 });
-    }
 
     // Konversi "YYYY-MM" ke "YYYY-MM-01" untuk kolom DATE
     const bulanDate = bulan.length === 7 ? bulan + '-01' : bulan;
@@ -40,16 +37,19 @@ export async function POST(
       return NextResponse.json({ error: 'Donatur tidak ditemukan' }, { status: 404 });
     }
 
-    // Upload bukti ke storage
-    const fileExt = bukti.name.split('.').pop();
-    const filePath = `donatur-${id}-${Date.now()}.${fileExt}`;
-    const { error: uploadError } = await supabase.storage
-      .from('bukti-transfer')
-      .upload(filePath, bukti);
+    // Upload bukti ke storage (opsional)
+    let filePath: string | null = null;
+    if (bukti) {
+      const fileExt = bukti.name.split('.').pop();
+      filePath = `donatur-${id}-${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('bukti-transfer')
+        .upload(filePath, bukti);
 
-    if (uploadError) {
-      console.error('Storage Upload Error:', uploadError);
-      return NextResponse.json({ error: `Gagal mengunggah bukti: ${uploadError.message}` }, { status: 500 });
+      if (uploadError) {
+        console.error('Storage Upload Error:', uploadError);
+        return NextResponse.json({ error: `Gagal mengunggah bukti: ${uploadError.message}` }, { status: 500 });
+      }
     }
 
     const nominal = parseInt(nominal_realisasi);
@@ -58,7 +58,7 @@ export async function POST(
     // Cek apakah sudah ada realisasi untuk bulan ini
     const { data: existing } = await supabase
       .from('infaq_donatur_realisasi')
-      .select('id')
+      .select('id, bukti_url')
       .eq('donatur_id', id)
       .eq('bulan', bulanDate)
       .maybeSingle();
@@ -67,7 +67,7 @@ export async function POST(
     if (existing) {
       const result = await supabase
         .from('infaq_donatur_realisasi')
-        .update({ nominal_realisasi: nominal, status, catatan: catatan || null, bukti_url: filePath })
+        .update({ nominal_realisasi: nominal, status, catatan: catatan || null, bukti_url: filePath || (existing as any).bukti_url || null })
         .eq('id', existing.id)
         .select()
         .single();

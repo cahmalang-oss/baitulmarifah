@@ -64,10 +64,6 @@ export async function POST(request: Request) {
     if (new Date(tanggal) > new Date()) {
       return NextResponse.json({ error: 'Tanggal tidak boleh melebihi hari ini' }, { status: 400 });
     }
-    if (jenis === 'masuk' && !bukti) {
-      return NextResponse.json({ error: 'Bukti transfer wajib diunggah' }, { status: 400 });
-    }
-
     const supabase = createAdminClient();
 
     let buktiUrl: string | null = null;
