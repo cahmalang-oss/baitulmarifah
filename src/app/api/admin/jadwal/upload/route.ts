@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { requireVerifikator } from '@/lib/auth-middleware';
+import { requireHumas } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function POST(request: Request) {
   try {
-    const payload = await requireVerifikator();
+    const payload = await requireHumas();
     if (payload instanceof Response) return payload;
 
     const form = await request.formData();

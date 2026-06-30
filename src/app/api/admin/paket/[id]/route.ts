@@ -23,3 +23,29 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const payload = await requireAdmin();
+    if (payload instanceof Response) return payload;
+
+    const supabase = createAdminClient();
+
+    const { count } = await supabase
+      .from('jamaah_profile')
+      .select('id', { count: 'exact', head: true })
+      .eq('paket_id', id);
+
+    if (count && count > 0) {
+      return NextResponse.json({ error: `Tidak bisa dihapus, masih dipakai ${count} jamaah` }, { status: 400 });
+    }
+
+    const { error } = await supabase.from('paket').delete().eq('id', id);
+    if (error) throw error;
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

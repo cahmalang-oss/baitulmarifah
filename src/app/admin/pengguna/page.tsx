@@ -6,6 +6,7 @@ const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
   bendahara: 'Bendahara',
   verifikator: 'Verifikator',
+  humas: 'Humas',
   jamaah: 'Jamaah',
 };
 
@@ -13,6 +14,7 @@ const ROLE_COLORS: Record<string, string> = {
   admin: 'bg-red-900/40 text-red-300 border-red-500/30',
   bendahara: 'bg-blue-900/40 text-blue-300 border-blue-500/30',
   verifikator: 'bg-purple-900/40 text-purple-300 border-purple-500/30',
+  humas: 'bg-teal-900/40 text-teal-300 border-teal-500/30',
   jamaah: 'bg-white/10 text-white/50 border-white/15',
 };
 

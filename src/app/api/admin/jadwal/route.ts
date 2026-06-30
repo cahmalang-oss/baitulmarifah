@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireVerifikator } from '@/lib/auth-middleware';
+import { requireHumas } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 type Jenis = 'kajian' | 'imam' | 'pengumuman';
@@ -16,7 +16,7 @@ function getJenis(url: string): Jenis | null {
 
 export async function GET(request: Request) {
   try {
-    const payload = await requireVerifikator();
+    const payload = await requireHumas();
     if (payload instanceof Response) return payload;
     const jenis = getJenis(request.url);
     if (!jenis) return NextResponse.json({ error: 'Parameter jenis wajib (kajian|imam|pengumuman)' }, { status: 400 });
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const payload = await requireVerifikator();
+    const payload = await requireHumas();
     if (payload instanceof Response) return payload;
     const jenis = getJenis(request.url);
     if (!jenis) return NextResponse.json({ error: 'Parameter jenis wajib' }, { status: 400 });
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const payload = await requireVerifikator();
+    const payload = await requireHumas();
     if (payload instanceof Response) return payload;
     const jenis = getJenis(request.url);
     if (!jenis) return NextResponse.json({ error: 'Parameter jenis wajib' }, { status: 400 });
@@ -69,7 +69,7 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const payload = await requireVerifikator();
+    const payload = await requireHumas();
     if (payload instanceof Response) return payload;
     const jenis = getJenis(request.url);
     if (!jenis) return NextResponse.json({ error: 'Parameter jenis wajib' }, { status: 400 });

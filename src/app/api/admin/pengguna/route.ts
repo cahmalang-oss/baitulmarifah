@@ -30,7 +30,7 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { id, role } = body;
 
-    const validRoles = ['jamaah', 'bendahara', 'verifikator', 'admin'];
+    const validRoles = ['jamaah', 'bendahara', 'verifikator', 'humas', 'admin'];
     if (!id || !role || !validRoles.includes(role)) {
       return NextResponse.json({ error: 'Data tidak valid' }, { status: 400 });
     }

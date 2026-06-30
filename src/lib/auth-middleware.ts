@@ -3,9 +3,10 @@ import type { NextRequest } from 'next/server'
 import { verifyToken, JwtPayload } from './auth'
 import { createClient } from './supabase/server'
 
-export const ALL_STAFF_ROLES = ['admin', 'bendahara', 'verifikator'];
+export const ALL_STAFF_ROLES = ['admin', 'bendahara', 'verifikator', 'humas'];
 export const BENDAHARA_ROLES = ['admin', 'bendahara'];
 export const VERIFIKATOR_ROLES = ['admin', 'verifikator'];
+export const HUMAS_ROLES = ['admin', 'verifikator', 'humas'];
 
 function unauthorizedResponse() {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
@@ -64,5 +65,12 @@ export async function requireBendahara(request?: NextRequest): Promise<JwtPayloa
 export async function requireVerifikator(request?: NextRequest): Promise<JwtPayload | Response> {
   const payload = await getTokenPayload(request);
   if (!payload || !VERIFIKATOR_ROLES.includes(payload.role)) return unauthorizedResponse();
+  return payload;
+}
+
+// Admin + Verifikator + Humas — untuk halaman jadwal kajian, imam, pengumuman
+export async function requireHumas(request?: NextRequest): Promise<JwtPayload | Response> {
+  const payload = await getTokenPayload(request);
+  if (!payload || !HUMAS_ROLES.includes(payload.role)) return unauthorizedResponse();
   return payload;
 }

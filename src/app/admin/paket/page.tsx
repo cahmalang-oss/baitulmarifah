@@ -76,6 +76,16 @@ export default function PaketPage() {
     if (res.ok) fetchPaket();
   };
 
+  const handleDelete = async (id: string, nama: string) => {
+    if (!confirm(`Hapus paket "${nama}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+    try {
+      const res = await fetch(`/api/admin/paket/${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (res.ok) fetchPaket();
+      else alert(json.error || 'Gagal menghapus paket');
+    } catch { alert('Kesalahan jaringan'); }
+  };
+
   return (
     <div>
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -114,12 +124,22 @@ export default function PaketPage() {
             </div>
             <div className="pt-3 border-t border-white/10 flex items-center justify-between">
               <span className="text-xs text-white/40">Dipakai: <strong className="text-white/70">{paket.peserta_count} Jamaah</strong></span>
-              <button
-                onClick={() => { setEditForm({ ...paket }); setShowEditModal(true); }}
-                className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white/70 text-sm font-bold rounded-lg transition-colors"
-              >
-                Edit
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setEditForm({ ...paket }); setShowEditModal(true); }}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white/70 text-sm font-bold rounded-lg transition-colors"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(paket.id, paket.nama)}
+                  disabled={paket.peserta_count > 0}
+                  title={paket.peserta_count > 0 ? 'Masih dipakai jamaah, tidak bisa dihapus' : 'Hapus paket'}
+                  className="px-4 py-2 bg-red-900/20 hover:bg-red-900/40 text-red-400 text-sm font-bold rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-red-900/20"
+                >
+                  Hapus
+                </button>
+              </div>
             </div>
           </div>
         ))}
