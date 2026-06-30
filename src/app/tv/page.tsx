@@ -72,59 +72,67 @@ function SlideJadwal({ jadwal }: { jadwal: JadwalData }) {
   };
 
   return (
-    <div className="flex-1 grid grid-cols-2 gap-5 p-8">
+    <div className="flex-1 grid grid-cols-2 gap-5 p-8 overflow-hidden">
       {/* Kajian */}
-      <div className="rounded-3xl border border-white/10 p-6 overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+      <div className="rounded-3xl border border-white/10 p-6 overflow-y-auto" style={{ background: 'rgba(255,255,255,0.04)' }}>
         <p className="text-xs font-bold uppercase tracking-widest text-[#C9A84C]/70 mb-4">📚 Jadwal Kajian</p>
         {jadwal.kajian.length === 0 ? (
           <p className="text-white/30 text-sm">Tidak ada jadwal</p>
         ) : (
-          <div className="space-y-4">
-            {jadwal.kajian.slice(0, 3).map(k => (
-              <div key={k.id} className="flex gap-3 items-start">
-                {k.mode_tampil === 'flyer' && k.flyer_url && (
-                  <img src={k.flyer_url} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
-                )}
-                {k.mode_tampil === 'manual_foto' && k.foto_penceramah_url && (
-                  <img src={k.foto_penceramah_url} className="w-12 h-12 rounded-full object-cover flex-shrink-0 mt-1" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-white text-lg leading-tight">{k.judul || '—'}</p>
-                  {k.pemateri && <p className="text-[#C9A84C] text-sm mt-0.5">{k.pemateri}</p>}
-                  <p className="text-white/40 text-xs mt-1">{fmtDate(k.tanggal)} {k.waktu && `· ${k.waktu}`} {k.lokasi && `· ${k.lokasi}`}</p>
+          <div className="space-y-5">
+            {jadwal.kajian.slice(0, 2).map(k => (
+              k.mode_tampil === 'flyer' && k.flyer_url ? (
+                <div key={k.id} className="rounded-2xl overflow-hidden bg-black/20">
+                  <img src={k.flyer_url} className="w-full max-h-[420px] object-contain" />
+                  <p className="text-white/40 text-xs px-3 py-2">{fmtDate(k.tanggal)} {k.waktu && `· ${k.waktu}`} {k.lokasi && `· ${k.lokasi}`}</p>
                 </div>
-              </div>
+              ) : (
+                <div key={k.id} className="flex gap-3 items-start">
+                  {k.mode_tampil === 'manual_foto' && k.foto_penceramah_url && (
+                    <img src={k.foto_penceramah_url} className="w-12 h-12 rounded-full object-cover flex-shrink-0 mt-1" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-white text-lg leading-tight">{k.judul || '—'}</p>
+                    {k.pemateri && <p className="text-[#C9A84C] text-sm mt-0.5">{k.pemateri}</p>}
+                    <p className="text-white/40 text-xs mt-1">{fmtDate(k.tanggal)} {k.waktu && `· ${k.waktu}`} {k.lokasi && `· ${k.lokasi}`}</p>
+                  </div>
+                </div>
+              )
             ))}
           </div>
         )}
       </div>
 
       {/* Imam */}
-      <div className="rounded-3xl border border-white/10 p-6 overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+      <div className="rounded-3xl border border-white/10 p-6 overflow-y-auto" style={{ background: 'rgba(255,255,255,0.04)' }}>
         <p className="text-xs font-bold uppercase tracking-widest text-[#C9A84C]/70 mb-4">🕌 Jadwal Imam</p>
         {jadwal.imam.length === 0 ? (
           <p className="text-white/30 text-sm">Tidak ada jadwal</p>
         ) : (
-          <div className="space-y-4">
-            {jadwal.imam.slice(0, 4).map(im => (
-              <div key={im.id} className="flex gap-3 items-start">
-                {im.mode_tampil === 'flyer' && im.flyer_url && (
-                  <img src={im.flyer_url} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
-                )}
-                {im.mode_tampil === 'manual_foto' && im.foto_imam_url && (
-                  <img src={im.foto_imam_url} className="w-12 h-12 rounded-full object-cover flex-shrink-0 mt-1" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#C9A84C]/40 text-[#C9A84C]">
-                      {JENIS_LABEL[im.jenis] || im.jenis}
-                    </span>
-                  </div>
-                  <p className="font-bold text-white text-lg leading-tight">{im.nama_imam || '—'}</p>
-                  {im.tema_khutbah && <p className="text-white/50 text-sm mt-0.5 line-clamp-1">{im.tema_khutbah}</p>}
-                  <p className="text-white/40 text-xs mt-0.5">{fmtDate(im.tanggal)}</p>
+          <div className="space-y-5">
+            {jadwal.imam.slice(0, 3).map(im => (
+              im.mode_tampil === 'flyer' && im.flyer_url ? (
+                <div key={im.id} className="rounded-2xl overflow-hidden bg-black/20">
+                  <img src={im.flyer_url} className="w-full max-h-[300px] object-contain" />
+                  <p className="text-white/40 text-xs px-3 py-2">{JENIS_LABEL[im.jenis] || im.jenis} · {fmtDate(im.tanggal)}</p>
                 </div>
-              </div>
+              ) : (
+                <div key={im.id} className="flex gap-3 items-start">
+                  {im.mode_tampil === 'manual_foto' && im.foto_imam_url && (
+                    <img src={im.foto_imam_url} className="w-12 h-12 rounded-full object-cover flex-shrink-0 mt-1" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#C9A84C]/40 text-[#C9A84C]">
+                        {JENIS_LABEL[im.jenis] || im.jenis}
+                      </span>
+                    </div>
+                    <p className="font-bold text-white text-lg leading-tight">{im.nama_imam || '—'}</p>
+                    {im.tema_khutbah && <p className="text-white/50 text-sm mt-0.5 line-clamp-1">{im.tema_khutbah}</p>}
+                    <p className="text-white/40 text-xs mt-0.5">{fmtDate(im.tanggal)}</p>
+                  </div>
+                </div>
+              )
             ))}
           </div>
         )}
@@ -140,7 +148,7 @@ export default function TvPage() {
   const [tv, setTv] = useState<TvData | null>(null);
   const [jadwal, setJadwal] = useState<JadwalData | null>(null);
   const [clock, setClock] = useState('');
-  const SLIDE_DURATION = 30;
+  const SLIDE_DURATION = 15;
 
   const fetchTv = useCallback(() => {
     fetch('/api/public/tv').then(r => r.json()).then(setTv).catch(() => {});
@@ -152,7 +160,7 @@ export default function TvPage() {
   useEffect(() => {
     fetchTv(); fetchJadwal();
     const tvTimer = setInterval(fetchTv, 60_000);
-    const jadwalTimer = setInterval(fetchJadwal, 5 * 60_000);
+    const jadwalTimer = setInterval(fetchJadwal, 60_000);
     return () => { clearInterval(tvTimer); clearInterval(jadwalTimer); };
   }, [fetchTv, fetchJadwal]);
 
