@@ -2,48 +2,49 @@
 import { requireVerifikator } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+const KAPASITAS_PER_SAPI = 7;
+
+// Grup patungan diturunkan otomatis dari paket (jenis sapi-patungan) + jamaah
+// yang sudah terdaftar & disetujui pada paket tsb — tidak ada input manual.
 export async function GET() {
   try {
     const payload = await requireVerifikator();
     if (payload instanceof Response) return payload;
     const supabase = createAdminClient();
-    const { data: grups, error } = await supabase
-      .from('grup')
-      .select('id, nama, target_anggota, paket(nama, harga_target), jamaah_profile(id, saldo)')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    const result = (grups || []).map((g: any) => {
-      const paketData = Array.isArray(g.paket) ? g.paket[0] : g.paket;
-      const anggotaList = Array.isArray(g.jamaah_profile) ? g.jamaah_profile : [];
-      const terkumpul = anggotaList.reduce((sum: number, a: any) => sum + (a.saldo || 0), 0);
-      const target = paketData?.harga_target || 0;
+
+    const { data: paketList, error: paketError } = await supabase
+      .from('paket')
+      .select('id, nama, harga_target')
+      .eq('jenis', 'sapi-patungan')
+      .eq('status', 'aktif')
+      .order('nama', { ascending: true });
+    if (paketError) throw paketError;
+
+    const result = await Promise.all((paketList || []).map(async (p) => {
+      const { data: anggota } = await supabase
+        .from('jamaah_profile')
+        .select('saldo, users(nama)')
+        .eq('paket_id', p.id)
+        .eq('paket_status', 'aktif');
+
+      const anggotaList = anggota || [];
+      const terkumpul = anggotaList.reduce((sum, a: any) => sum + (a.saldo || 0), 0);
+      const target = p.harga_target || 0;
+
       return {
-        id: g.id, nama: g.nama,
-        paket_nama: paketData?.nama || '-',
+        id: p.id,
+        nama: p.nama,
+        paket_nama: p.nama,
         paket_harga: target,
         anggota_saat_ini: anggotaList.length,
-        target_anggota: g.target_anggota || 7,
+        target_anggota: KAPASITAS_PER_SAPI,
         terkumpul_saldo: terkumpul,
-        progress_persen: target > 0 ? Math.min(Math.round((terkumpul / target) * 100), 100) : 0
+        progress_persen: target > 0 ? Math.min(Math.round((terkumpul / target) * 100), 100) : 0,
+        anggota_nama: anggotaList.map((a: any) => (Array.isArray(a.users) ? a.users[0]?.nama : a.users?.nama)).filter(Boolean),
       };
-    });
-    return NextResponse.json({ data: result });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-}
+    }));
 
-export async function POST(request: Request) {
-  try {
-    const payload = await requireVerifikator();
-    if (payload instanceof Response) return payload;
-    const body = await request.json();
-    const { nama, paket_id, target_anggota } = body;
-    if (!nama || !paket_id) return NextResponse.json({ error: 'Nama dan paket wajib diisi' }, { status: 400 });
-    const supabase = createAdminClient();
-    const { data, error } = await supabase.from('grup').insert({ nama, paket_id, target_anggota: target_anggota || 7 }).select().single();
-    if (error) throw error;
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ data: result });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

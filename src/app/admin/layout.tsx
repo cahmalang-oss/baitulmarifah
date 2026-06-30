@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth-middleware';
 import Link from 'next/link';
+import MobileNav from './MobileNav';
 
 // roles yang boleh akses tiap menu
 const allNavItems = [
@@ -123,20 +124,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </main>
 
       {/* ── Mobile Bottom Navigation ── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30
-        bg-black/60 backdrop-blur-xl border-t border-white/8 flex overflow-x-auto">
-        {navItems.slice(0, 6).map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex flex-col items-center justify-center text-white/40 p-2 min-w-[60px] flex-1
-              hover:text-[#C9A84C] transition-colors"
-          >
-            <NavIcon d={item.icon} />
-            <span className="text-[9px] font-medium mt-1 leading-none">{item.label}</span>
-          </Link>
-        ))}
-      </nav>
+      <MobileNav items={navItems} />
     </div>
   );
 }
