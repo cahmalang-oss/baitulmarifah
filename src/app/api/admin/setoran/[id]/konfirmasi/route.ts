@@ -118,10 +118,8 @@ export async function POST(
         bulan: bulanRealisasi,
         nominal_realisasi: jumlahSetoran,
         status: 'lunas',
-        tanggal_bayar: new Date().toISOString().split('T')[0],
         catatan: `Konfirmasi setoran ID: ${id}`,
         bukti_url: (setoran as any).bukti_url || null,
-        verifikasi_oleh: payload.id,
       });
 
       if (realisasiError) {

@@ -142,7 +142,9 @@ export default function SetoranPage() {
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <h3 className="font-bold text-white text-lg">{item.peserta.nama}</h3>
                   <span className="px-2 py-0.5 bg-yellow-900/40 text-yellow-400 text-[10px] font-bold uppercase rounded-md">Pending</span>
-                  {item.kategori === 'infaq'
+                  {item.kategori === 'donatur_tetap'
+                    ? <span className="px-2 py-0.5 bg-green-900/40 text-green-300 text-[10px] font-bold uppercase rounded-md">🤝 Donatur Tetap</span>
+                    : item.kategori === 'infaq'
                     ? <span className="px-2 py-0.5 bg-blue-900/40 text-blue-300 text-[10px] font-bold uppercase rounded-md">🤲 Infaq</span>
                     : <span className="px-2 py-0.5 bg-amber-900/40 text-amber-300 text-[10px] font-bold uppercase rounded-md">🐄 Qurban</span>
                   }
