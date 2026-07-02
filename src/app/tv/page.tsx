@@ -98,9 +98,11 @@ function SlideKajian({ jadwal }: { jadwal: JadwalData }) {
         <div key={k.id} className="rounded-3xl border border-white/10 p-6 flex flex-col overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
           <p className="text-xs font-bold uppercase tracking-widest text-[#C9A84C]/70 mb-4">📚 Jadwal Kajian</p>
           {k.mode_tampil === 'flyer' && k.flyer_url ? (
-            <div className="flex-1 flex flex-col rounded-2xl overflow-hidden bg-black/20">
-              <img src={k.flyer_url} className="flex-1 w-full object-contain" />
-              <div className="px-3 py-2"><JadwalMeta tanggal={k.tanggal} waktu={k.waktu} lokasi={k.lokasi} /></div>
+            <div className="flex-1 flex flex-col rounded-2xl overflow-hidden bg-black/20 min-h-0">
+              <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
+                <img src={k.flyer_url} className="w-full h-full object-contain" style={{ maxHeight: '100%' }} />
+              </div>
+              <div className="px-3 py-2 flex-shrink-0"><JadwalMeta tanggal={k.tanggal} waktu={k.waktu} lokasi={k.lokasi} /></div>
             </div>
           ) : (
             <div className="flex gap-4 items-start">
