@@ -11,7 +11,7 @@ type TvData = {
   tickerItems: { nama: string; jumlah: number; kategori: string; tanggal: string }[];
 };
 type JadwalData = {
-  kajian: any[]; imam: any[]; pengumuman: { id: string; isi: string }[];
+  kajian: any[]; imam: any[]; pengumuman: { id: string; isi: string; flyer_url?: string; gambar_url?: string }[];
 };
 
 const IDR = (n: number) =>
@@ -41,7 +41,7 @@ function SlideKeuangan({ tv }: { tv: TvData }) {
   ];
 
   return (
-    <div className="flex-1 grid grid-cols-2 gap-5 p-8">
+    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 p-4 md:p-8 overflow-y-auto md:overflow-hidden">
       {cards.map(c => (
         <div key={c.label} className="rounded-3xl border p-6 flex flex-col justify-between"
           style={{ background: 'rgba(255,255,255,0.04)', borderColor: `${c.color}30` }}>
@@ -88,7 +88,7 @@ function JadwalMeta({ tanggal, waktu, lokasi }: { tanggal: string; waktu?: strin
 function SlideKajian({ jadwal }: { jadwal: JadwalData }) {
   const items = jadwal.kajian.slice(0, 2);
   return (
-    <div className="flex-1 grid grid-cols-2 gap-5 p-8 overflow-hidden">
+    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 p-4 md:p-8 overflow-y-auto md:overflow-hidden">
       {items.length === 0 && (
         <div className="col-span-2 flex items-center justify-center rounded-3xl border border-white/10" style={{ background: 'rgba(255,255,255,0.04)' }}>
           <p className="text-white/30 text-lg">Tidak ada jadwal kajian</p>
@@ -138,7 +138,6 @@ const QUOTES: { teks: string; sumber: string }[] = [
 ];
 
 function SlideImamQuran({ jadwal }: { jadwal: JadwalData }) {
-  const JENIS_LABEL: Record<string, string> = { jumat: "Jum'at", idul_fitri: 'Idul Fitri', idul_adha: 'Idul Adha' };
   const [quoteIdx, setQuoteIdx] = useState(0);
 
   useEffect(() => {
@@ -150,40 +149,21 @@ function SlideImamQuran({ jadwal }: { jadwal: JadwalData }) {
   const quote = QUOTES[quoteIdx];
 
   return (
-    <div className="flex-1 grid grid-cols-2 gap-5 p-8 overflow-hidden">
-      {/* Imam */}
+    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 p-4 md:p-8 overflow-y-auto md:overflow-hidden">
+      {/* Pengumuman */}
       <div className="rounded-3xl border border-white/10 p-6 overflow-y-auto" style={{ background: 'rgba(255,255,255,0.04)' }}>
-        <p className="text-xs font-bold uppercase tracking-widest text-[#C9A84C]/70 mb-4">🕌 Jadwal Imam</p>
-        {jadwal.imam.length === 0 ? (
-          <p className="text-white/30 text-sm">Tidak ada jadwal</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-[#C9A84C]/70 mb-4">📢 Pengumuman</p>
+        {jadwal.pengumuman.length === 0 ? (
+          <p className="text-white/30 text-sm">Tidak ada pengumuman</p>
         ) : (
-          <div className="space-y-5">
-            {jadwal.imam.slice(0, 3).map(im => (
-              im.mode_tampil === 'flyer' && im.flyer_url ? (
-                <div key={im.id} className="rounded-2xl overflow-hidden bg-black/20">
-                  <img src={im.flyer_url} className="w-full max-h-[300px] object-contain" />
-                  <div className="px-3 py-2">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#C9A84C]/40 text-[#C9A84C] mr-2">{JENIS_LABEL[im.jenis] || im.jenis}</span>
-                    <JadwalMeta tanggal={im.tanggal} />
-                  </div>
-                </div>
-              ) : (
-                <div key={im.id} className="flex gap-3 items-start">
-                  {im.mode_tampil === 'manual_foto' && im.foto_imam_url && (
-                    <img src={im.foto_imam_url} className="w-12 h-12 rounded-full object-cover flex-shrink-0 mt-1" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#C9A84C]/40 text-[#C9A84C]">
-                        {JENIS_LABEL[im.jenis] || im.jenis}
-                      </span>
-                    </div>
-                    <p className="font-bold text-white text-lg leading-tight">{im.nama_imam || '—'}</p>
-                    {im.tema_khutbah && <p className="text-white/50 text-sm mt-0.5 line-clamp-1">{im.tema_khutbah}</p>}
-                    <JadwalMeta tanggal={im.tanggal} />
-                  </div>
-                </div>
-              )
+          <div className="space-y-4">
+            {jadwal.pengumuman.map(p => (
+              <div key={p.id} className="flex flex-col">
+                {p.flyer_url ? (
+                  <img src={p.flyer_url} className="w-full max-h-[200px] object-contain mb-2" />
+                ) : null}
+                <p className="text-white text-base">{p.isi}</p>
+              </div>
             ))}
           </div>
         )}
@@ -269,9 +249,9 @@ export default function TvPage() {
   })();
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#0A0F1E', color: 'white', fontFamily: 'system-ui, -apple-system, sans-serif', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div className="w-screen h-screen bg-[#0A0F1E] text-white flex flex-col font-sans overflow-hidden">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 32px', borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)', flexShrink: 0 }}>
+      <div className="flex flex-col md:flex-row items-center justify-between p-4 md:px-8 md:py-4 border-b border-white/10 bg-white/5 shrink-0 gap-3 md:gap-0">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <svg width="32" height="32" viewBox="0 0 24 24" fill="#C9A84C">
             <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
@@ -284,7 +264,7 @@ export default function TvPage() {
         </div>
 
         {/* Slide selector */}
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex flex-wrap justify-center gap-2">
           {['Keuangan', 'Kajian', 'Imam & Hikmah'].map((label, i) => (
             <button key={i} onClick={() => { setSlide(i); setProgress(0); }}
               style={{ padding: '8px 20px', borderRadius: 10, border: slide === i ? '1px solid #C9A84C' : '1px solid rgba(255,255,255,0.1)', background: slide === i ? 'rgba(201,168,76,0.15)' : 'transparent', color: slide === i ? '#C9A84C' : 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
@@ -293,7 +273,7 @@ export default function TvPage() {
           ))}
         </div>
 
-        <div style={{ textAlign: 'right' }}>
+        <div className="hidden md:block text-right">
           <div style={{ fontSize: 36, fontWeight: 700, color: '#C9A84C', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px' }}>{clock}</div>
         </div>
       </div>
