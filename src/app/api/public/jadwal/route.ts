@@ -23,7 +23,7 @@ export async function GET() {
         .order('tanggal', { ascending: true })
         .limit(6),
       supabase.from('pengumuman')
-        .select('id, isi, urutan')
+        .select('id, judul, isi, flyer_url, urutan')
         .eq('aktif', true)
         .order('urutan', { ascending: true }),
     ]);

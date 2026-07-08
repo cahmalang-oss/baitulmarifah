@@ -8,7 +8,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('settings')
       .select('key, value')
-      .in('key', ['nama_masjid', 'no_rekening_bsi', 'nama_rekening', 'info_qris', 'no_wa_pengurus']);
+      .in('key', ['nama_masjid', 'no_rekening_bsi', 'nama_rekening', 'info_qris', 'no_wa_pengurus', 'hadits_harian', 'sumber_hadits']);
     if (error) throw error;
 
     const settings: Record<string, string> = {};
