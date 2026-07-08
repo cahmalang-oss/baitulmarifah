@@ -18,6 +18,7 @@ export default async function DashboardLayout({
     { label: 'Beranda',  href: '/dashboard',         emoji: '🏠' },
     { label: 'Kurban',   href: '/dashboard/kurban',  emoji: '🐄' },
     { label: 'Infaq',    href: '/dashboard/infaq',   emoji: '🤲' },
+    { label: 'Jadwal',   href: '/dashboard/jadwal',  emoji: '📅' },
     { label: 'Riwayat',  href: '/dashboard/riwayat', emoji: '📋' },
     { label: 'Profil',   href: '/dashboard/profil',  emoji: '👤' },
   ];
