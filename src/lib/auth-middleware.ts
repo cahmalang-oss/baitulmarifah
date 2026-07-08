@@ -33,7 +33,12 @@ export async function requireJamaah(request?: NextRequest): Promise<JwtPayload |
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      return { id: user.id, nama: user.user_metadata.full_name || 'User', role: 'jamaah' };
+      // Validasi role dari tabel users — staff tidak boleh akses dashboard jamaah
+      const { createAdminClient } = await import('./supabase/admin');
+      const adminClient = createAdminClient();
+      const { data: dbUser } = await adminClient.from('users').select('role, nama').eq('id', user.id).single();
+      if (!dbUser || dbUser.role !== 'jamaah') return unauthorizedResponse();
+      return { id: user.id, nama: dbUser.nama || user.user_metadata.full_name || 'User', role: 'jamaah' };
     }
   }
 
