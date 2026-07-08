@@ -140,9 +140,9 @@ export default function JamaahDetailForms({
           onChange={(e) => setPaketId(e.target.value)}
           className="w-full px-4 py-2 bg-[#1E293B] border border-white/15 text-white rounded-xl mb-3 focus:border-[#C9A84C] outline-none"
         >
-          <option value="">-- Pilih Paket --</option>
+          <option value="" className="bg-[#1E293B] text-white">-- Pilih Paket --</option>
           {paketList.map(p => (
-            <option key={p.id} value={p.id}>{p.nama} (Rp {p.harga_target.toLocaleString('id-ID')})</option>
+            <option key={p.id} value={p.id} className="bg-[#1E293B] text-white">{p.nama} (Rp {p.harga_target.toLocaleString('id-ID')})</option>
           ))}
         </select>
         <button disabled={loadingPaket} type="submit" className="w-full py-2 bg-[#C9A84C] text-[#0F172A] font-bold rounded-xl hover:bg-[#D4B869] transition-colors disabled:opacity-50">

@@ -67,7 +67,7 @@ export default function WaqafPage() {
           className="px-4 py-2 bg-white/5 border border-white/15 text-white rounded-xl text-sm outline-none"
         >
           {bulanOptions.map(b => (
-            <option key={b.val} value={b.val}>{b.label}</option>
+            <option key={b.val} value={b.val} className="bg-[#1E293B] text-white">{b.label}</option>
           ))}
         </select>
         <Link

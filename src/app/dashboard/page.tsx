@@ -20,25 +20,22 @@ export default async function DashboardPage() {
 
   const [
     { data: profile },
-    { data: setoranList },
     { data: kasData },
     { count: totalJamaah },
     { data: faseAktif },
   ] = await Promise.all([
     supabase.from('jamaah_profile').select('*, paket(*)').eq('user_id', payload.id).maybeSingle(),
-    supabase.from('setoran').select('id, jumlah, tanggal_setor, status, kategori')
-      .order('tanggal_setor', { ascending: false }).limit(4),
     supabase.from('kas_transaksi').select('nominal, jenis'),
     supabase.from('users').select('id', { count: 'exact' }).eq('role', 'jamaah').eq('status', 'aktif'),
     supabase.from('hewan_fase').select('label, deskripsi').eq('aktif', true).maybeSingle(),
   ]);
 
-  // Saldo jamaah ini dulu (filter by jamaah_id jika punya profile)
-  let mySetoranList = setoranList;
+  // Setoran milik jamaah ini saja — jangan tampilkan data jamaah lain
+  let mySetoranList: any[] = [];
   if (profile?.id) {
     const { data } = await supabase.from('setoran').select('id, jumlah, tanggal_setor, status, kategori')
       .eq('jamaah_id', profile.id).order('tanggal_setor', { ascending: false }).limit(4);
-    mySetoranList = data;
+    mySetoranList = data || [];
   }
 
   const totalKasMasuk = kasData?.filter(k => k.jenis === 'masuk').reduce((s, k) => s + (k.nominal || 0), 0) ?? 0;
@@ -59,6 +56,7 @@ export default async function DashboardPage() {
   const kategoriLabel = (k: string) => {
     if (k === 'kurban') return '🐄';
     if (k === 'donatur_tetap') return '🤝';
+    if (k === 'waqaf') return '🕌';
     return '🤲';
   };
 

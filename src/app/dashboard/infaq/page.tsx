@@ -227,9 +227,9 @@ export default function InfaqPage() {
               <div>
                 <label className="block text-xs text-white/60 mb-1">Metode Pembayaran</label>
                 <select name="metode_bayar" className="w-full px-3 py-2.5 bg-[#0F172A] border border-white/15 text-white text-sm rounded-lg focus:ring-1 focus:ring-[#C9A84C] outline-none">
-                  <option value="transfer">Transfer Bank</option>
-                  <option value="qris">QRIS</option>
-                  <option value="tunai">Tunai</option>
+                  <option value="transfer" className="bg-[#0F172A] text-white">Transfer Bank</option>
+                  <option value="qris" className="bg-[#0F172A] text-white">QRIS</option>
+                  <option value="tunai" className="bg-[#0F172A] text-white">Tunai</option>
                 </select>
               </div>
               <div>

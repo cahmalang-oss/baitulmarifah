@@ -101,19 +101,19 @@ export default function JamaahPage() {
             onChange={(e) => setFilterVA(e.target.value)}
             className="px-3 py-2 bg-white/5 border border-white/15 text-white rounded-lg text-sm flex-1 md:w-48 outline-none"
           >
-            <option value="semua">Semua Virtual Account</option>
-            <option value="sudah">Sudah ada VA</option>
-            <option value="belum">Belum ada VA</option>
+            <option value="semua" className="bg-[#1E293B] text-white">Semua Virtual Account</option>
+            <option value="sudah" className="bg-[#1E293B] text-white">Sudah ada VA</option>
+            <option value="belum" className="bg-[#1E293B] text-white">Belum ada VA</option>
           </select>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
             className="px-3 py-2 bg-white/5 border border-white/15 text-white rounded-lg text-sm flex-1 md:w-40 outline-none"
           >
-            <option value="semua">Semua Status</option>
-            <option value="aktif">Aktif</option>
-            <option value="lunas">Lunas</option>
-            <option value="nonaktif">Nonaktif</option>
+            <option value="semua" className="bg-[#1E293B] text-white">Semua Status</option>
+            <option value="aktif" className="bg-[#1E293B] text-white">Aktif</option>
+            <option value="lunas" className="bg-[#1E293B] text-white">Lunas</option>
+            <option value="nonaktif" className="bg-[#1E293B] text-white">Nonaktif</option>
           </select>
         </div>
       </div>
