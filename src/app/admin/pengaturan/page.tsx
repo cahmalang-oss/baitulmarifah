@@ -33,7 +33,17 @@ export default function PengaturanPage() {
       const res = await fetch('/api/admin/jadwal/upload', { method: 'POST', body: fd });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error);
-      setSettings(prev => ({ ...prev, qris_image_url: j.url }));
+      const newSettings = { ...settings, qris_image_url: j.url };
+      setSettings(newSettings);
+      // Auto-simpan agar tidak perlu klik "Simpan Pengaturan" lagi
+      const saveRes = await fetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qris_image_url: j.url }),
+      });
+      if (!saveRes.ok) { const sj = await saveRes.json(); throw new Error(sj.error || 'Gagal menyimpan QRIS'); }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
       setError(err.message || 'Gagal mengunggah QRIS');
     } finally {
