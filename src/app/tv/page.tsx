@@ -151,12 +151,23 @@ function SlidePengumuman({ jadwal }: { jadwal: JadwalData }) {
   );
 }
 
-/* ── Slide 4: Hadits Harian (manual) ── */
-function SlideHadits({ hadits }: { hadits: { teks: string; sumber: string } }) {
+/* ── Slide 4: Hadits Harian (acak dari daftar) ── */
+function SlideHadits({ list }: { list: { teks: string; sumber: string }[] }) {
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    if (list.length === 0) return;
+    setIdx(Math.floor(Math.random() * list.length));
+    const t = setInterval(() => setIdx(() => Math.floor(Math.random() * list.length)), 10000);
+    return () => clearInterval(t);
+  }, [list.length]);
+
+  const hadits = list[idx];
+
   return (
     <div className="flex-1 p-8 overflow-hidden">
       <div className="h-full rounded-3xl border border-[#C9A84C]/20 p-12 flex flex-col items-center justify-center text-center" style={{ background: 'rgba(201,168,76,0.06)' }}>
-        {hadits.teks ? (
+        {hadits ? (
           <>
             <span className="text-7xl mb-8 opacity-40 text-[#C9A84C]">❝</span>
             <p className="text-white text-4xl leading-relaxed font-medium" style={{ maxWidth: 900 }}>{hadits.teks}</p>
@@ -176,7 +187,7 @@ export default function TvPage() {
   const [progress, setProgress] = useState(0);
   const [tv, setTv] = useState<TvData | null>(null);
   const [jadwal, setJadwal] = useState<JadwalData | null>(null);
-  const [hadits, setHadits] = useState({ teks: '', sumber: '' });
+  const [haditsList, setHaditsList] = useState<{ teks: string; sumber: string }[]>([]);
   const [clock, setClock] = useState('');
   const SLIDE_DURATION = 15;
   const SLIDE_COUNT = 4;
@@ -188,8 +199,8 @@ export default function TvPage() {
     fetch('/api/public/jadwal').then(r => r.json()).then(setJadwal).catch(() => {});
   }, []);
   const fetchHadits = useCallback(() => {
-    fetch('/api/public/settings').then(r => r.json()).then(j => {
-      if (j.settings) setHadits({ teks: j.settings.hadits_harian || '', sumber: j.settings.sumber_hadits || '' });
+    fetch('/api/public/hadits').then(r => r.json()).then(j => {
+      if (Array.isArray(j.data)) setHaditsList(j.data.map((h: any) => ({ teks: h.teks, sumber: h.sumber || '' })));
     }).catch(() => {});
   }, []);
 
@@ -286,7 +297,7 @@ export default function TvPage() {
       {tv && slide === 0 && <SlideKeuangan tv={tv} />}
       {jadwal && slide === 1 && <SlideKajian jadwal={jadwal} />}
       {jadwal && slide === 2 && <SlidePengumuman jadwal={jadwal} />}
-      {slide === 3 && <SlideHadits hadits={hadits} />}
+      {slide === 3 && <SlideHadits list={haditsList} />}
       {(!tv || !jadwal) && slide !== 3 && (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 18 }}>
           Memuat data...

@@ -2,10 +2,6 @@ import { NextResponse } from 'next/server';
 import { requireBendahara } from '@/lib/auth-middleware';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-const VALID_KATEGORI = ['pengeluaran_infaq', 'pengeluaran_kurban', 'pengeluaran_waqaf'];
-// kategori lama 'pengeluaran' tetap ditampilkan di list
-const ALL_KATEGORI = ['pengeluaran', 'pengeluaran_infaq', 'pengeluaran_kurban', 'pengeluaran_waqaf'];
-
 export async function GET(request: Request) {
   try {
     const payload = await requireBendahara();
@@ -14,22 +10,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const bulan = searchParams.get('bulan') || '';
-    const jenisKas = searchParams.get('jenis_kas') || ''; // filter opsional
     const limit = 20;
     const start = (page - 1) * limit;
     const end = start + limit - 1;
 
     const supabase = createAdminClient();
 
-    const kategoriFilter = jenisKas && VALID_KATEGORI.includes(jenisKas)
-      ? [jenisKas]
-      : ALL_KATEGORI;
-
     let query = supabase
       .from('kas_transaksi')
-      .select('id, kategori, nominal, sumber, catatan, tanggal', { count: 'exact' })
-      .in('kategori', kategoriFilter)
-      .eq('jenis', 'keluar')
+      .select('id, jenis, nominal, sumber, catatan, tanggal, bukti_url', { count: 'exact' })
+      .eq('kategori', 'waqaf')
       .order('tanggal', { ascending: false })
       .range(start, end);
 
@@ -57,14 +47,15 @@ export async function POST(request: Request) {
     const payload = await requireBendahara();
     if (payload instanceof Response) return payload;
 
-    const body = await request.json();
-    const { nominal, sumber, tanggal, catatan, jenis_kas } = body;
+    const formData = await request.formData();
+    const nominal = Number(formData.get('nominal'));
+    const sumber = formData.get('sumber')?.toString() || '';
+    const tanggal = formData.get('tanggal')?.toString();
+    const catatan = formData.get('catatan')?.toString() || '';
+    const bukti = formData.get('bukti') as File | null;
 
     if (!nominal || !tanggal) {
       return NextResponse.json({ error: 'Nominal dan tanggal wajib diisi' }, { status: 400 });
-    }
-    if (!jenis_kas || !VALID_KATEGORI.includes(jenis_kas)) {
-      return NextResponse.json({ error: 'Jenis kas harus dipilih (infaq / kurban / waqaf)' }, { status: 400 });
     }
     if (nominal <= 0) {
       return NextResponse.json({ error: 'Nominal harus lebih dari 0' }, { status: 400 });
@@ -72,19 +63,31 @@ export async function POST(request: Request) {
     if (new Date(tanggal) > new Date()) {
       return NextResponse.json({ error: 'Tanggal tidak boleh melebihi hari ini' }, { status: 400 });
     }
-
     const supabase = createAdminClient();
+
+    let buktiUrl: string | null = null;
+    if (bukti) {
+      const fileExt = bukti.name.split('.').pop();
+      const filePath = `waqaf-${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('bukti-transfer').upload(filePath, bukti);
+      if (uploadError) {
+        console.error('Storage Upload Error:', uploadError);
+        return NextResponse.json({ error: `Gagal mengunggah bukti: ${uploadError.message}` }, { status: 500 });
+      }
+      buktiUrl = filePath;
+    }
 
     const { data, error } = await supabase
       .from('kas_transaksi')
       .insert({
-        jenis: 'keluar',
-        kategori: jenis_kas,
+        jenis: 'masuk',
+        kategori: 'waqaf',
         nominal,
         sumber: sumber || '',
         catatan: catatan || null,
         tanggal,
-        input_oleh: payload.id
+        input_oleh: payload.id,
+        bukti_url: buktiUrl,
       })
       .select()
       .single();
@@ -92,11 +95,11 @@ export async function POST(request: Request) {
     if (error) throw error;
 
     await supabase.from('audit_log').insert({
-      aksi: 'TAMBAH_PENGELUARAN',
+      aksi: 'TAMBAH_WAQAF',
       entity_type: 'kas_transaksi',
       entity_id: data.id,
       user_id: payload.id,
-      detail: { nominal, kategori: jenis_kas }
+      detail: { nominal }
     });
 
     return NextResponse.json({ success: true, data });

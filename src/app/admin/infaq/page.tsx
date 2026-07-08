@@ -29,6 +29,15 @@ export default async function InfaqPage() {
 
   const totalRealisasi = realisasiData?.reduce((sum, t) => sum + t.nominal, 0) || 0;
 
+  // Total waqaf (masuk - keluar)
+  const { data: waqafMasukData } = await supabase
+    .from('kas_transaksi').select('nominal, jenis').eq('kategori', 'waqaf');
+  const { data: waqafKeluarData } = await supabase
+    .from('kas_transaksi').select('nominal').eq('kategori', 'pengeluaran_waqaf').eq('jenis', 'keluar');
+  const totalWaqafMasuk = waqafMasukData?.reduce((s, t) => s + (t.jenis === 'masuk' ? t.nominal : -t.nominal), 0) || 0;
+  const totalWaqafKeluar = waqafKeluarData?.reduce((s, t) => s + t.nominal, 0) || 0;
+  const saldoWaqaf = totalWaqafMasuk - totalWaqafKeluar;
+
   // Total donatur tetap aktif
   const { count: totalDonatur } = await supabase
     .from('infaq_donatur_tetap')
@@ -65,7 +74,7 @@ export default async function InfaqPage() {
       </header>
 
       {/* Ringkasan Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="glass-card p-5">
           <p className="text-xs text-white/40 font-semibold uppercase tracking-wide mb-1">Total Saldo Infaq</p>
           <p className="text-2xl font-extrabold text-[#C9A84C]">{formatRp(totalInsidentil + totalRealisasi)}</p>
@@ -83,10 +92,16 @@ export default async function InfaqPage() {
           <p className={`text-2xl font-extrabold ${belumBayar > 0 ? 'text-red-400' : 'text-white'}`}>{belumBayar}</p>
           <p className={`text-xs mt-1 ${belumBayar > 0 ? 'text-red-400/60' : 'text-white/30'}`}>{belumBayar > 0 ? '⚠️ Perlu follow-up!' : '✅ Semua sudah lunas'}</p>
         </div>
+
+        <div className="glass-card p-5 border-teal-500/30">
+          <p className="text-xs text-teal-300/70 font-semibold uppercase tracking-wide mb-1">Saldo Waqaf</p>
+          <p className="text-2xl font-extrabold text-teal-300">{formatRp(saldoWaqaf)}</p>
+          <p className="text-xs text-white/30 mt-1">Program pembangunan (kanopi)</p>
+        </div>
       </div>
 
       {/* Tab Navigasi */}
-      <div className="flex gap-3 border-b border-white/10 pb-4">
+      <div className="flex gap-3 border-b border-white/10 pb-4 flex-wrap">
         <Link
           href="/admin/infaq/insidentil"
           className="px-5 py-2.5 bg-[#C9A84C]/20 border border-[#C9A84C]/40 text-[#C9A84C] font-bold rounded-xl text-sm hover:bg-[#C9A84C]/30 transition-colors"
@@ -98,6 +113,12 @@ export default async function InfaqPage() {
           className="px-5 py-2.5 bg-white/5 border border-white/10 text-white/60 font-bold rounded-xl text-sm hover:bg-white/10 hover:text-white transition-colors"
         >
           🤝 Donatur Tetap
+        </Link>
+        <Link
+          href="/admin/infaq/waqaf"
+          className="px-5 py-2.5 bg-white/5 border border-white/10 text-white/60 font-bold rounded-xl text-sm hover:bg-white/10 hover:text-white transition-colors"
+        >
+          🕌 Waqaf
         </Link>
       </div>
 

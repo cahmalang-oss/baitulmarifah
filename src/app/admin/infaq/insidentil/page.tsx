@@ -48,12 +48,15 @@ export default function InsidentilPage() {
       </header>
 
       {/* Tab Navigasi */}
-      <div className="flex gap-3 border-b border-white/10 pb-4">
+      <div className="flex gap-3 border-b border-white/10 pb-4 flex-wrap">
         <Link href="/admin/infaq/insidentil" className="px-5 py-2.5 bg-[#C9A84C]/20 border border-[#C9A84C]/40 text-[#C9A84C] font-bold rounded-xl text-sm">
           💰 Infaq Insidentil
         </Link>
         <Link href="/admin/infaq/donatur-tetap" className="px-5 py-2.5 bg-white/5 border border-white/10 text-white/60 font-bold rounded-xl text-sm hover:bg-white/10 hover:text-white transition-colors">
           🤝 Donatur Tetap
+        </Link>
+        <Link href="/admin/infaq/waqaf" className="px-5 py-2.5 bg-white/5 border border-white/10 text-white/60 font-bold rounded-xl text-sm hover:bg-white/10 hover:text-white transition-colors">
+          🕌 Waqaf
         </Link>
       </div>
 

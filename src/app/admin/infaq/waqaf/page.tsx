@@ -7,7 +7,7 @@ function formatRp(n: number) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
 }
 
-export default function PengeluaranPage() {
+export default function WaqafPage() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -20,7 +20,7 @@ export default function PengeluaranPage() {
   const fetchData = async (pg: number, bulan: string, append = false) => {
     if (!append) setLoading(true);
     try {
-      const res = await fetch(`/api/admin/pengeluaran?page=${pg}&bulan=${bulan}`);
+      const res = await fetch(`/api/admin/infaq/waqaf?page=${pg}&bulan=${bulan}`);
       const json = await res.json();
       if (res.ok) {
         setData(prev => append ? [...prev, ...json.data] : json.data);
@@ -42,11 +42,24 @@ export default function PengeluaranPage() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-[#C9A84C]/70 text-xs uppercase tracking-widest font-semibold mb-1">Kas Masjid</p>
-        <h1 className="text-2xl font-bold text-white">Pengeluaran</h1>
-        <p className="text-white/40 text-sm">Kelola transaksi pengeluaran & belanja masjid.</p>
+        <h1 className="text-2xl font-bold text-white">Waqaf</h1>
+        <p className="text-white/50 text-sm">Pemasukan program waqaf (mis. pembangunan kanopi masjid).</p>
       </header>
 
+      {/* Tab Navigasi */}
+      <div className="flex gap-3 border-b border-white/10 pb-4 flex-wrap">
+        <Link href="/admin/infaq/insidentil" className="px-5 py-2.5 bg-white/5 border border-white/10 text-white/60 font-bold rounded-xl text-sm hover:bg-white/10 hover:text-white transition-colors">
+          💰 Infaq Insidentil
+        </Link>
+        <Link href="/admin/infaq/donatur-tetap" className="px-5 py-2.5 bg-white/5 border border-white/10 text-white/60 font-bold rounded-xl text-sm hover:bg-white/10 hover:text-white transition-colors">
+          🤝 Donatur Tetap
+        </Link>
+        <Link href="/admin/infaq/waqaf" className="px-5 py-2.5 bg-teal-500/20 border border-teal-500/40 text-teal-300 font-bold rounded-xl text-sm">
+          🕌 Waqaf
+        </Link>
+      </div>
+
+      {/* Action bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <select
           value={filterBulan}
@@ -58,10 +71,10 @@ export default function PengeluaranPage() {
           ))}
         </select>
         <Link
-          href="/admin/pengeluaran/tambah"
-          className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-sm transition-colors"
+          href="/admin/infaq/waqaf/tambah"
+          className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-[#0F172A] font-bold rounded-xl text-sm transition-colors"
         >
-          + Tambah Pengeluaran
+          + Tambah Waqaf
         </Link>
       </div>
 
@@ -69,9 +82,9 @@ export default function PengeluaranPage() {
         <div className="text-center py-16 text-white/30">Memuat data...</div>
       ) : data.length === 0 ? (
         <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center">
-          <div className="text-4xl mb-3">🧾</div>
-          <p className="font-semibold text-white">Belum ada pengeluaran</p>
-          <p className="text-sm text-white/40 mt-1">Catat pengeluaran masjid di bulan ini.</p>
+          <div className="text-4xl mb-3">🕌</div>
+          <p className="font-semibold text-white">Belum ada penerimaan waqaf</p>
+          <p className="text-sm text-white/40 mt-1">Mulai catat penerimaan waqaf di bulan ini.</p>
         </div>
       ) : (
         <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
@@ -80,9 +93,9 @@ export default function PengeluaranPage() {
               <thead className="bg-black/20 border-b border-white/10">
                 <tr>
                   <th className="text-left px-5 py-3 font-semibold text-white/50">Tanggal</th>
-                  <th className="text-left px-5 py-3 font-semibold text-white/50">Keperluan</th>
-                  <th className="text-left px-5 py-3 font-semibold text-white/50">Jenis Kas</th>
+                  <th className="text-left px-5 py-3 font-semibold text-white/50">Sumber / Donatur</th>
                   <th className="text-left px-5 py-3 font-semibold text-white/50 hidden md:table-cell">Catatan</th>
+                  <th className="text-center px-5 py-3 font-semibold text-white/50">Bukti</th>
                   <th className="text-right px-5 py-3 font-semibold text-white/50">Nominal</th>
                 </tr>
               </thead>
@@ -93,19 +106,23 @@ export default function PengeluaranPage() {
                       {new Date(item.tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="px-5 py-3 text-white/80 font-medium">{item.sumber || '—'}</td>
-                    <td className="px-5 py-3">
-                      {item.kategori === 'pengeluaran_infaq'
-                        ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-900/40 text-purple-300 border border-purple-500/30">Infaq</span>
-                        : item.kategori === 'pengeluaran_kurban'
-                        ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-900/40 text-amber-300 border border-amber-500/30">Kurban</span>
-                        : item.kategori === 'pengeluaran_waqaf'
-                        ? <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-900/40 text-teal-300 border border-teal-500/30">Waqaf</span>
-                        : <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/30 border border-white/10">Lama</span>
-                      }
-                    </td>
                     <td className="px-5 py-3 text-white/40 text-xs hidden md:table-cell max-w-[200px] truncate">{item.catatan || '—'}</td>
-                    <td className="px-5 py-3 font-bold text-right text-red-400">
-                      - {formatRp(item.nominal)}
+                    <td className="px-5 py-3 text-center">
+                      {item.bukti_url ? (
+                        <a
+                          href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/bukti-transfer/${item.bukti_url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-[#C9A84C] font-medium hover:underline"
+                        >
+                          📎 Lihat
+                        </a>
+                      ) : (
+                        <span className="text-white/20 text-xs">—</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3 font-bold text-right text-teal-300">
+                      + {formatRp(item.nominal)}
                     </td>
                   </tr>
                 ))}

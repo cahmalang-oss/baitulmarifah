@@ -7,6 +7,7 @@ import Link from 'next/link';
 const KEPERLUAN_PRESET: Record<string, string[]> = {
   pengeluaran_infaq: ['Operasional Masjid', 'Listrik & Air', 'Gaji Marbot', 'Pembelian ATK', 'Kebersihan', 'Perbaikan Ringan', 'Perlengkapan Ibadah', 'Konsumsi Rapat'],
   pengeluaran_kurban: ['Pembelian Hewan Kurban', 'Biaya Penyembelihan', 'Biaya Distribusi Daging', 'Perlengkapan Kurban', 'Konsumsi Panitia'],
+  pengeluaran_waqaf: ['Material Bangunan', 'Upah Tukang', 'Pembelian Besi/Kanopi', 'Semen & Pasir', 'Sewa Alat', 'Konsumsi Pekerja'],
 };
 
 const INPUT_CLS = 'w-full px-4 py-3 bg-white/5 border border-white/15 text-white placeholder:text-white/25 rounded-xl focus:ring-2 focus:ring-[#C9A84C] focus:border-transparent outline-none transition';
@@ -74,10 +75,11 @@ export default function TambahPengeluaranPage() {
         {/* Jenis Kas — wajib dipilih dulu */}
         <div>
           <label className="block text-sm font-medium text-white/70 mb-2">Jenis Kas <span className="text-red-400">*</span></label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {[
               { val: 'pengeluaran_infaq', label: 'Kas Infaq', emoji: '🤲', color: 'border-purple-500/50 bg-purple-900/20 text-purple-300' },
               { val: 'pengeluaran_kurban', label: 'Kas Kurban', emoji: '🐄', color: 'border-amber-500/50 bg-amber-900/20 text-amber-300' },
+              { val: 'pengeluaran_waqaf', label: 'Kas Waqaf', emoji: '🕌', color: 'border-teal-500/50 bg-teal-900/20 text-teal-300' },
             ].map(opt => (
               <button
                 key={opt.val}

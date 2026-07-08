@@ -271,7 +271,15 @@ export default function InfaqPage() {
               </div>
             </div>
           )}
-          {bankInfo.info_qris && (
+          {bankInfo.qris_image_url ? (
+            <div className="bg-[#1E293B] border border-white/10 rounded-xl p-4 flex flex-col items-center">
+              <p className="text-[10px] text-white/40 self-start mb-2">📱 Scan QRIS untuk bayar</p>
+              <div className="bg-white p-3 rounded-xl">
+                <img src={bankInfo.qris_image_url} alt="QRIS Masjid" className="w-56 h-56 object-contain" />
+              </div>
+              {bankInfo.info_qris && <p className="text-white/50 text-xs mt-2 text-center">{bankInfo.info_qris}</p>}
+            </div>
+          ) : bankInfo.info_qris ? (
             <div className="flex items-center gap-3 bg-[#1E293B] border border-white/10 rounded-xl p-3">
               <span className="text-xl">📱</span>
               <div>
@@ -279,7 +287,7 @@ export default function InfaqPage() {
                 <p className="text-white/70 text-sm">{bankInfo.info_qris}</p>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       )}
 

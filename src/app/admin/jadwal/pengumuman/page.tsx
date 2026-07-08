@@ -15,7 +15,9 @@ export default function PengumumanPage() {
   const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
   const flyerRef = useRef<HTMLInputElement>(null);
 
-  // Hadits harian
+  // Hadits harian (multi)
+  type Hadits = { id: string; teks: string; sumber: string | null; aktif: boolean };
+  const [haditsList, setHaditsList] = useState<Hadits[]>([]);
   const [hadits, setHadits] = useState('');
   const [sumber, setSumber] = useState('');
   const [savingHadits, setSavingHadits] = useState(false);
@@ -29,14 +31,13 @@ export default function PengumumanPage() {
       .catch(() => setLoading(false));
   };
 
+  const loadHadits = () => {
+    fetch('/api/admin/hadits').then(r => r.json()).then(j => setHaditsList(j.data || [])).catch(() => {});
+  };
+
   useEffect(() => {
     load();
-    fetch('/api/public/settings')
-      .then(r => r.json())
-      .then(j => {
-        if (j.settings?.hadits_harian) setHadits(j.settings.hadits_harian);
-        if (j.settings?.sumber_hadits) setSumber(j.settings.sumber_hadits);
-      });
+    loadHadits();
   }, []);
 
   const openAdd = () => { setEditing(null); setForm({ judul: '', isi: '', aktif: true }); setShowForm(true); };
@@ -91,18 +92,36 @@ export default function PengumumanPage() {
     setHaditsMsg(null);
     try {
       const res = await fetch('/api/admin/hadits', {
-        method: 'PATCH',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hadits_harian: hadits, sumber_hadits: sumber }),
+        body: JSON.stringify({ teks: hadits, sumber }),
       });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error);
-      setHaditsMsg({ type: 'ok', text: 'Hadits harian disimpan' });
+      setHaditsMsg({ type: 'ok', text: 'Hadits ditambahkan' });
+      setHadits(''); setSumber('');
+      loadHadits();
     } catch (err: any) {
       setHaditsMsg({ type: 'err', text: err.message });
     } finally {
       setSavingHadits(false);
     }
+  };
+
+  const handleToggleHadits = async (h: Hadits) => {
+    await fetch('/api/admin/hadits', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: h.id, aktif: !h.aktif }),
+    });
+    loadHadits();
+  };
+
+  const handleDeleteHadits = async (id: string) => {
+    if (!confirm('Hapus hadits ini?')) return;
+    await fetch('/api/admin/hadits', {
+      method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }),
+    });
+    loadHadits();
   };
 
   const handleDelete = async (id: string) => {
@@ -240,10 +259,12 @@ export default function PengumumanPage() {
           </div>
         )}
 
-        <form onSubmit={handleSaveHadits} className="space-y-4 max-w-2xl">
+        <p className="text-xs text-white/40 mb-4">Tambahkan beberapa hadits/ayat. Yang aktif akan tampil bergantian secara acak di TV.</p>
+
+        <form onSubmit={handleSaveHadits} className="space-y-3 max-w-2xl mb-6 bg-white/5 border border-white/10 rounded-2xl p-5">
           <div>
             <label className="text-xs text-white/50 mb-1 block">Teks Hadits / Ayat</label>
-            <textarea required rows={4} value={hadits} onChange={e => setHadits(e.target.value)}
+            <textarea required rows={3} value={hadits} onChange={e => setHadits(e.target.value)}
               placeholder="Contoh: Sebaik-baik manusia adalah yang paling bermanfaat bagi manusia lainnya."
               className="w-full px-3 py-2.5 bg-white/5 border border-white/15 text-white placeholder:text-white/30 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#C9A84C] resize-none" />
           </div>
@@ -255,17 +276,29 @@ export default function PengumumanPage() {
           </div>
           <button type="submit" disabled={savingHadits}
             className="px-6 py-2.5 bg-[#C9A84C] text-black font-semibold rounded-xl text-sm hover:bg-[#C9A84C]/90 transition disabled:opacity-50">
-            {savingHadits ? 'Menyimpan...' : 'Simpan Hadits'}
+            {savingHadits ? 'Menyimpan...' : '+ Tambah Hadits'}
           </button>
         </form>
 
-        {hadits && (
-          <div className="mt-4 max-w-2xl p-5 rounded-2xl border border-[#C9A84C]/20 bg-[#C9A84C]/5">
-            <p className="text-xs text-[#C9A84C]/60 uppercase tracking-widest mb-2">Preview TV</p>
-            <p className="text-white text-base leading-relaxed">❝ {hadits} ❞</p>
-            {sumber && <p className="text-[#C9A84C] text-xs font-bold mt-3 uppercase tracking-wide">{sumber}</p>}
-          </div>
-        )}
+        {/* Daftar hadits */}
+        <div className="space-y-2 max-w-2xl">
+          {haditsList.length === 0 && <p className="text-white/30 text-sm text-center py-6">Belum ada hadits</p>}
+          {haditsList.map(h => (
+            <div key={h.id} className={`flex items-start gap-3 p-4 rounded-2xl border ${h.aktif ? 'bg-white/5 border-white/10' : 'bg-white/2 border-white/5 opacity-50'}`}>
+              <span className="text-[#C9A84C] text-lg leading-none mt-0.5">❝</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-sm leading-relaxed">{h.teks}</p>
+                {h.sumber && <p className="text-[#C9A84C] text-xs font-bold mt-1 uppercase tracking-wide">{h.sumber}</p>}
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                <button onClick={() => handleToggleHadits(h)} className={`text-xs px-3 py-1.5 rounded-lg border transition ${h.aktif ? 'border-green-500/30 text-green-400 hover:bg-red-900/20 hover:text-red-300 hover:border-red-500/30' : 'border-white/10 text-white/40 hover:text-white hover:border-white/20'}`}>
+                  {h.aktif ? 'Nonaktifkan' : 'Aktifkan'}
+                </button>
+                <button onClick={() => handleDeleteHadits(h.id)} className="text-xs px-3 py-1.5 rounded-lg border border-red-500/20 text-red-400/60 hover:text-red-300 hover:border-red-500/40 transition">Hapus</button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

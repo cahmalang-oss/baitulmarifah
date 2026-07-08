@@ -79,10 +79,15 @@ export async function GET() {
       (sparkInfaqResult.data || []).filter((t: any) => t.tanggal === d).reduce((s: number, r: any) => s + (r.nominal || 0), 0)
     );
 
+    // Samarkan nama: ambil huruf pertama tiap kata, sisanya jadi 'x'
+    // Contoh: "Rahmat Wahyudi" -> "Rxxxxx Wxxxxx"
+    const samarkan = (nama: string) =>
+      nama.split(/\s+/).map(w => w.length <= 1 ? w : w[0] + 'x'.repeat(w.length - 1)).join(' ');
+
     const tickerItems = (tickerResult.data || []).map((s: any) => {
       const jp = Array.isArray(s.jamaah_profile) ? s.jamaah_profile[0] : s.jamaah_profile;
       const user = jp?.users ? (Array.isArray(jp.users) ? jp.users[0] : jp.users) : null;
-      return { nama: user?.nama || 'Jamaah', jumlah: s.jumlah, kategori: s.kategori, tanggal: s.tanggal_setor };
+      return { nama: samarkan(user?.nama || 'Jamaah'), jumlah: s.jumlah, kategori: s.kategori, tanggal: s.tanggal_setor };
     });
 
     return NextResponse.json({

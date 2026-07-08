@@ -19,6 +19,27 @@ export default function PengaturanPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [uploadingQris, setUploadingQris] = useState(false);
+
+  const handleQrisUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingQris(true);
+    setError('');
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('folder', 'qris');
+      const res = await fetch('/api/admin/jadwal/upload', { method: 'POST', body: fd });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error);
+      setSettings(prev => ({ ...prev, qris_image_url: j.url }));
+    } catch (err: any) {
+      setError(err.message || 'Gagal mengunggah QRIS');
+    } finally {
+      setUploadingQris(false);
+    }
+  };
 
   useEffect(() => {
     fetch('/api/admin/settings')
@@ -106,6 +127,25 @@ export default function PengaturanPage() {
                 )}
               </div>
             ))}
+
+            {/* Upload gambar QRIS */}
+            <div>
+              <label className="block text-sm font-medium text-white/70 mb-1">Gambar QRIS</label>
+              <p className="text-xs text-white/40 mb-2">Upload gambar QRIS resmi. Akan ditampilkan di halaman infaq jamaah.</p>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={handleQrisUpload}
+                disabled={uploadingQris}
+                className="w-full text-sm text-white/60 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-[#C9A84C]/20 file:text-[#C9A84C] file:text-sm file:font-semibold hover:file:bg-[#C9A84C]/30 cursor-pointer"
+              />
+              {uploadingQris && <p className="text-xs text-[#C9A84C] mt-2">Mengupload...</p>}
+              {settings.qris_image_url && (
+                <div className="mt-3 inline-block bg-white p-2 rounded-xl">
+                  <img src={settings.qris_image_url} alt="QRIS" className="h-40 w-40 object-contain" />
+                </div>
+              )}
+            </div>
 
             {/* Preview info rekening */}
             {(settings.no_rekening_bsi || settings.nama_rekening) && (
