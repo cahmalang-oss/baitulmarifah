@@ -139,7 +139,7 @@ export default function PengumumanPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">Pengumuman</h1>
-            <p className="text-white/50 text-sm mt-1">Ditampilkan sebagai slide di layar TV</p>
+            <p className="text-white/50 text-sm mt-1">Dengan flyer → tampil di slide TV · Tanpa flyer → tampil di teks berjalan (ticker)</p>
           </div>
           <button onClick={openAdd} className="px-4 py-2 bg-[#C9A84C] text-black font-semibold rounded-xl text-sm hover:bg-[#C9A84C]/90 transition">
             + Tambah

@@ -124,119 +124,46 @@ function SlideKajian({ jadwal }: { jadwal: JadwalData }) {
   );
 }
 
-/* ── Slide 3: Pengumuman ── */
+/* ── Slide 3: Pengumuman (khusus flyer) ── */
 function SlidePengumuman({ jadwal }: { jadwal: JadwalData }) {
-  const items = jadwal.pengumuman;
-  const flyers = items.filter(p => p.flyer_url);
-  const texts = items.filter(p => !p.flyer_url);
+  const flyers = jadwal.pengumuman.filter(p => p.flyer_url);
 
   return (
     <div className="flex-1 p-8 overflow-hidden flex flex-col gap-4">
       <p className="text-xs font-bold uppercase tracking-widest text-[#C9A84C]/70 flex-shrink-0">📢 Pengumuman Masjid</p>
-      {items.length === 0 ? (
+      {flyers.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-white/30 text-lg">Tidak ada pengumuman</p>
+          <p className="text-white/30 text-lg">Belum ada flyer pengumuman</p>
         </div>
-      ) : flyers.length > 0 && texts.length === 0 ? (
-        /* Hanya flyer — tampilkan grid flyer */
-        <div className={`flex-1 grid gap-4 overflow-hidden ${flyers.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+      ) : (
+        <div className={`flex-1 grid gap-5 overflow-hidden ${flyers.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
           {flyers.slice(0, 2).map(p => (
-            <div key={p.id} className="flex-1 rounded-2xl overflow-hidden bg-black/20 flex flex-col min-h-0">
+            <div key={p.id} className="rounded-2xl overflow-hidden bg-black/20 flex flex-col min-h-0">
               <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
                 <img src={p.flyer_url!} className="w-full h-full object-contain" style={{ maxHeight: '100%' }} />
               </div>
-              {p.judul && <p className="px-3 py-2 text-[#C9A84C] text-xs font-bold flex-shrink-0 text-center">{p.judul}</p>}
+              {p.judul && <p className="px-4 py-3 text-[#C9A84C] text-base font-bold flex-shrink-0 text-center">{p.judul}</p>}
             </div>
           ))}
-        </div>
-      ) : (
-        /* Ada teks atau campuran */
-        <div className={`flex-1 grid gap-5 overflow-hidden ${flyers.length > 0 ? 'grid-cols-2' : 'grid-cols-1 max-w-3xl mx-auto w-full'}`}>
-          {flyers.length > 0 && (
-            <div className="flex flex-col gap-4 overflow-hidden">
-              {flyers.slice(0, 1).map(p => (
-                <div key={p.id} className="flex-1 rounded-2xl overflow-hidden bg-black/20 flex flex-col min-h-0">
-                  <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
-                    <img src={p.flyer_url!} className="w-full h-full object-contain" style={{ maxHeight: '100%' }} />
-                  </div>
-                  {p.judul && <p className="px-3 py-2 text-[#C9A84C] text-xs font-bold flex-shrink-0 text-center">{p.judul}</p>}
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="flex flex-col gap-3 overflow-y-auto">
-            {(flyers.length > 0 ? texts : items).map(p => (
-              <div key={p.id} className="rounded-2xl border border-white/10 p-5" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                {p.judul && <p className="text-[#C9A84C] font-bold text-sm mb-2">{p.judul}</p>}
-                <p className="text-white text-base leading-relaxed">{p.isi}</p>
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>
   );
 }
 
-/* ── Slide 4: Imam (kiri) + Hadits Manual (kanan) ── */
-function SlideImamQuran({ jadwal, hadits }: { jadwal: JadwalData; hadits: { teks: string; sumber: string } }) {
-  const JENIS_LABEL: Record<string, string> = { jumat: "Jum'at", idul_fitri: 'Idul Fitri', idul_adha: 'Idul Adha' };
-  const fmtDate = (d: string) => {
-    if (!d) return '';
-    const dt = new Date(d + 'T00:00:00');
-    return dt.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
-  };
-
+/* ── Slide 4: Hadits Harian (manual) ── */
+function SlideHadits({ hadits }: { hadits: { teks: string; sumber: string } }) {
   return (
-    <div className="flex-1 grid grid-cols-2 gap-5 p-8 overflow-hidden">
-      {/* Imam */}
-      <div className="rounded-3xl border border-white/10 p-6 overflow-y-auto" style={{ background: 'rgba(255,255,255,0.04)' }}>
-        <p className="text-xs font-bold uppercase tracking-widest text-[#C9A84C]/70 mb-4">🕌 Jadwal Imam</p>
-        {jadwal.imam.length === 0 ? (
-          <p className="text-white/30 text-sm">Tidak ada jadwal</p>
-        ) : (
-          <div className="space-y-5">
-            {jadwal.imam.slice(0, 3).map(im => (
-              im.mode_tampil === 'flyer' && im.flyer_url ? (
-                <div key={im.id} className="rounded-2xl overflow-hidden bg-black/20">
-                  <img src={im.flyer_url} className="w-full max-h-[300px] object-contain" />
-                  <div className="px-3 py-2">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#C9A84C]/40 text-[#C9A84C] mr-2">{JENIS_LABEL[im.jenis] || im.jenis}</span>
-                    <JadwalMeta tanggal={im.tanggal} />
-                  </div>
-                </div>
-              ) : (
-                <div key={im.id} className="flex gap-3 items-start">
-                  {im.mode_tampil === 'manual_foto' && im.foto_imam_url && (
-                    <img src={im.foto_imam_url} className="w-12 h-12 rounded-full object-cover flex-shrink-0 mt-1" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#C9A84C]/40 text-[#C9A84C]">
-                        {JENIS_LABEL[im.jenis] || im.jenis}
-                      </span>
-                    </div>
-                    <p className="font-bold text-white text-lg leading-tight">{im.nama_imam || '—'}</p>
-                    {im.tema_khutbah && <p className="text-white/50 text-sm mt-0.5 line-clamp-1">{im.tema_khutbah}</p>}
-                    <JadwalMeta tanggal={im.tanggal} />
-                  </div>
-                </div>
-              )
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Hadits / Ayat Manual */}
-      <div className="rounded-3xl border border-[#C9A84C]/20 p-10 flex flex-col items-center justify-center text-center" style={{ background: 'rgba(201,168,76,0.06)' }}>
+    <div className="flex-1 p-8 overflow-hidden">
+      <div className="h-full rounded-3xl border border-[#C9A84C]/20 p-12 flex flex-col items-center justify-center text-center" style={{ background: 'rgba(201,168,76,0.06)' }}>
         {hadits.teks ? (
           <>
-            <span className="text-6xl mb-6 opacity-40">❝</span>
-            <p className="text-white text-2xl leading-relaxed font-medium" style={{ maxWidth: 500 }}>{hadits.teks}</p>
-            {hadits.sumber && <p className="text-[#C9A84C] text-sm font-bold mt-8 uppercase tracking-widest">{hadits.sumber}</p>}
+            <span className="text-7xl mb-8 opacity-40 text-[#C9A84C]">❝</span>
+            <p className="text-white text-4xl leading-relaxed font-medium" style={{ maxWidth: 900 }}>{hadits.teks}</p>
+            {hadits.sumber && <p className="text-[#C9A84C] text-lg font-bold mt-10 uppercase tracking-widest">— {hadits.sumber} —</p>}
           </>
         ) : (
-          <p className="text-white/20 text-sm">Hadits harian belum diisi.<br />Isi melalui menu Pengumuman.</p>
+          <p className="text-white/20 text-lg">Hadits harian belum diisi.<br />Isi melalui menu Pengumuman → Hadits / Ayat Harian.</p>
         )}
       </div>
     </div>
@@ -305,7 +232,20 @@ export default function TvPage() {
     } catch { return ''; }
   })();
 
-  const SLIDE_LABELS = ['Keuangan', 'Kajian', 'Pengumuman', 'Imam & Hikmah'];
+  const SLIDE_LABELS = ['Keuangan', 'Kajian', 'Pengumuman', 'Hadits Harian'];
+
+  // Ticker: pengumuman teks (tanpa flyer) + setoran terbaru
+  const allTickerItems: string[] = [];
+  if (jadwal) {
+    jadwal.pengumuman.filter(p => !p.flyer_url).forEach(p => allTickerItems.push(`📢 ${p.isi}`));
+  }
+  if (tv) {
+    tv.tickerItems.forEach(t => {
+      const kat = t.kategori === 'kurban' ? 'Kurban' : 'Infaq';
+      allTickerItems.push(`${t.nama} · ${kat} ${IDR(t.jumlah)}`);
+    });
+  }
+  const tickerText = allTickerItems.join('   ·   ');
 
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#0A0F1E', color: 'white', fontFamily: 'system-ui, -apple-system, sans-serif', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -346,12 +286,41 @@ export default function TvPage() {
       {tv && slide === 0 && <SlideKeuangan tv={tv} />}
       {jadwal && slide === 1 && <SlideKajian jadwal={jadwal} />}
       {jadwal && slide === 2 && <SlidePengumuman jadwal={jadwal} />}
-      {jadwal && slide === 3 && <SlideImamQuran jadwal={jadwal} hadits={hadits} />}
-      {(!tv || !jadwal) && (
+      {slide === 3 && <SlideHadits hadits={hadits} />}
+      {(!tv || !jadwal) && slide !== 3 && (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 18 }}>
           Memuat data...
         </div>
       )}
+
+      {/* Ticker */}
+      <div style={{ height: 44, background: 'rgba(201,168,76,0.1)', borderTop: '1px solid rgba(201,168,76,0.2)', display: 'flex', alignItems: 'center', overflow: 'hidden', flexShrink: 0 }}>
+        {tickerText ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0, width: '100%', overflow: 'hidden' }}>
+            <span style={{ flexShrink: 0, padding: '0 16px', fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: '#C9A84C', borderRight: '1px solid rgba(201,168,76,0.3)' }}>INFO</span>
+            <div style={{ overflow: 'hidden', flex: 1 }}>
+              <div className="tv-ticker" style={{ whiteSpace: 'nowrap', display: 'inline-block', fontSize: 14, color: 'rgba(255,255,255,0.85)', paddingLeft: '100%' }}>
+                {tickerText}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <span style={{ padding: '0 24px', fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Tidak ada pengumuman</span>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes ticker {
+          from { transform: translateX(0); }
+          to { transform: translateX(-100%); }
+        }
+        .tv-ticker {
+          animation: ticker 40s linear infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .tv-ticker { animation: none; }
+        }
+      `}</style>
     </div>
   );
 }
