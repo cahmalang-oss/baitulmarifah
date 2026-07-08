@@ -44,7 +44,7 @@ function SlideKeuangan({ tv }: { tv: TvData }) {
   ];
 
   return (
-    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 p-4 md:p-8 overflow-y-auto md:overflow-hidden">
+    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 md:auto-rows-fr gap-3 md:gap-5 p-4 md:p-8 overflow-y-auto md:overflow-hidden">
       {cards.map(c => (
         <div key={c.label} className="rounded-3xl border p-6 flex flex-col justify-between"
           style={{ background: 'rgba(255,255,255,0.04)', borderColor: `${c.color}30` }}>
