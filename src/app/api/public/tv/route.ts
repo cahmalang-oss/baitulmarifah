@@ -26,6 +26,7 @@ export async function GET() {
       sparkKurbanResult,
       sparkInfaqResult,
       setoranPendingResult,
+      waqafResult,
     ] = await Promise.all([
       supabase.from('kas_transaksi').select('nominal, jenis, kategori')
         .in('kategori', ['infaq_insidentil', 'infaq_donatur_tetap', 'pengeluaran_infaq']),
@@ -47,6 +48,7 @@ export async function GET() {
       supabase.from('kas_transaksi').select('nominal, tanggal')
         .in('kategori', ['infaq_insidentil', 'infaq_donatur_tetap']).eq('jenis', 'masuk').gte('tanggal', sevenDaysAgoStr),
       supabase.from('setoran').select('id', { count: 'exact' }).eq('status', 'pending'),
+      supabase.from('kas_transaksi').select('nominal, jenis').in('kategori', ['waqaf', 'pengeluaran_waqaf']),
     ]);
 
     const saldoInfaq = (kasResult.data || []).reduce((sum, t) => {
@@ -64,6 +66,11 @@ export async function GET() {
     const infaqMingguIni = (infaqMingguResult.data || []).reduce((s, r) => s + (r.nominal || 0), 0);
     const pengeluaranMingguIni = (pengeluaranMingguResult.data || []).reduce((s, r) => s + (r.nominal || 0), 0);
     const setoranPending = setoranPendingResult.count || 0;
+    const totalWaqaf = (waqafResult.data || []).reduce((sum, t: any) => {
+      if (t.jenis === 'masuk') return sum + (t.nominal || 0);
+      if (t.jenis === 'keluar') return sum - (t.nominal || 0);
+      return sum;
+    }, 0);
 
     // Build 7-day spark arrays
     const days7: string[] = [];
@@ -93,7 +100,7 @@ export async function GET() {
     return NextResponse.json({
       saldoInfaq, totalKurban, pengeluaranBulanIni, totalJamaah,
       tabunganCount, patunganCount, infaqHariIni, infaqMingguIni,
-      pengeluaranMingguIni, setoranPending, sparkKurban, sparkInfaq, tickerItems,
+      pengeluaranMingguIni, setoranPending, sparkKurban, sparkInfaq, totalWaqaf, tickerItems,
     }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

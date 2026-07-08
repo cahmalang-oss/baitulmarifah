@@ -8,6 +8,7 @@ type TvData = {
   totalJamaah: number; tabunganCount: number; patunganCount: number;
   infaqHariIni: number; infaqMingguIni: number; pengeluaranMingguIni: number;
   setoranPending: number; sparkKurban: number[]; sparkInfaq: number[];
+  totalWaqaf: number;
   tickerItems: { nama: string; jumlah: number; kategori: string; tanggal: string }[];
 };
 type JadwalData = {
@@ -39,6 +40,7 @@ function SlideKeuangan({ tv }: { tv: TvData }) {
     { label: 'Total Terkumpul Kurban', value: IDR(tv.totalKurban), sub: `${tv.tabunganCount} tabungan · ${tv.patunganCount} patungan`, color: '#C9A84C', spark: tv.sparkKurban },
     { label: 'Pengeluaran Bulan Ini', value: IDR(tv.pengeluaranBulanIni), sub: `Minggu ini: ${IDR(tv.pengeluaranMingguIni)}`, color: '#f87171', spark: null },
     { label: 'Total Jamaah', value: tv.totalJamaah.toString(), sub: `Setoran pending: ${tv.setoranPending}`, color: '#a78bfa', spark: null },
+    { label: 'Total Waqaf', value: IDR(tv.totalWaqaf), sub: 'Penerimaan bersih program waqaf', color: '#2dd4bf', spark: null },
   ];
 
   return (
@@ -129,16 +131,16 @@ function SlidePengumuman({ jadwal }: { jadwal: JadwalData }) {
   const flyers = jadwal.pengumuman.filter(p => p.flyer_url);
 
   return (
-    <div className="flex-1 p-8 overflow-hidden flex flex-col gap-4">
+    <div className="flex-1 p-4 md:p-8 overflow-hidden flex flex-col gap-3 md:gap-4">
       <p className="text-xs font-bold uppercase tracking-widest text-[#C9A84C]/70 flex-shrink-0">📢 Pengumuman Masjid</p>
       {flyers.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <p className="text-white/30 text-lg">Belum ada flyer pengumuman</p>
         </div>
       ) : (
-        <div className={`flex-1 grid gap-5 overflow-hidden ${flyers.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+        <div className={`flex-1 grid gap-3 md:gap-5 overflow-y-auto md:overflow-hidden ${flyers.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
           {flyers.slice(0, 2).map(p => (
-            <div key={p.id} className="rounded-2xl overflow-hidden bg-black/20 flex flex-col min-h-0">
+            <div key={p.id} className="rounded-2xl overflow-hidden bg-black/20 flex flex-col min-h-0 h-[70vh] md:h-auto flex-shrink-0 md:flex-shrink">
               <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
                 <img src={p.flyer_url!} className="w-full h-full object-contain" style={{ maxHeight: '100%' }} />
               </div>
@@ -165,16 +167,16 @@ function SlideHadits({ list }: { list: { teks: string; sumber: string }[] }) {
   const hadits = list[idx];
 
   return (
-    <div className="flex-1 p-8 overflow-hidden">
-      <div className="h-full rounded-3xl border border-[#C9A84C]/20 p-12 flex flex-col items-center justify-center text-center" style={{ background: 'rgba(201,168,76,0.06)' }}>
+    <div className="flex-1 p-4 md:p-8 overflow-hidden">
+      <div className="h-full rounded-3xl border border-[#C9A84C]/20 p-5 md:p-12 flex flex-col items-center justify-center text-center overflow-y-auto tv-hide-scrollbar" style={{ background: 'rgba(201,168,76,0.06)' }}>
         {hadits ? (
           <>
-            <span className="text-7xl mb-8 opacity-40 text-[#C9A84C]">❝</span>
-            <p className="text-white text-4xl leading-relaxed font-medium" style={{ maxWidth: 900 }}>{hadits.teks}</p>
-            {hadits.sumber && <p className="text-[#C9A84C] text-lg font-bold mt-10 uppercase tracking-widest">— {hadits.sumber} —</p>}
+            <span className="text-4xl md:text-7xl mb-3 md:mb-8 opacity-40 text-[#C9A84C]">❝</span>
+            <p className="text-white text-base sm:text-lg md:text-4xl leading-relaxed md:leading-relaxed font-medium max-w-full md:max-w-[900px]">{hadits.teks}</p>
+            {hadits.sumber && <p className="text-[#C9A84C] text-xs md:text-lg font-bold mt-4 md:mt-10 uppercase tracking-widest">— {hadits.sumber} —</p>}
           </>
         ) : (
-          <p className="text-white/20 text-lg">Hadits harian belum diisi.<br />Isi melalui menu Pengumuman → Hadits / Ayat Harian.</p>
+          <p className="text-white/20 text-sm md:text-lg">Hadits harian belum diisi.<br />Isi melalui menu Pengumuman → Hadits / Ayat Harian.</p>
         )}
       </div>
     </div>
@@ -261,29 +263,36 @@ export default function TvPage() {
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#0A0F1E', color: 'white', fontFamily: 'system-ui, -apple-system, sans-serif', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 32px', borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="#C9A84C">
-            <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
-          </svg>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 20, color: '#C9A84C', letterSpacing: '-0.5px' }}>Masjid BaitulMarifah</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>{today}</div>
-            {todayHijri && <div style={{ fontSize: 11, color: 'rgba(201,168,76,0.6)', marginTop: 1 }}>{todayHijri} H</div>}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-0 px-4 md:px-8 py-2.5 md:py-4"
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)', flexShrink: 0 }}>
+        <div className="flex items-center justify-between md:justify-start gap-3">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#C9A84C" className="md:w-8 md:h-8 flex-shrink-0">
+              <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
+            </svg>
+            <div>
+              <div className="text-base md:text-xl" style={{ fontWeight: 700, color: '#C9A84C', letterSpacing: '-0.5px' }}>Masjid BaitulMarifah</div>
+              <div className="text-[10px] md:text-xs" style={{ color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>{today}</div>
+              {todayHijri && <div className="text-[9px] md:text-[11px]" style={{ color: 'rgba(201,168,76,0.6)', marginTop: 1 }}>{todayHijri} H</div>}
+            </div>
           </div>
+
+          {/* Jam — tampil di baris atas khusus mode HP */}
+          <div className="md:hidden text-xl flex-shrink-0" style={{ fontWeight: 700, color: '#C9A84C', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px' }}>{clock}</div>
         </div>
 
-        {/* Slide selector */}
-        <div style={{ display: 'flex', gap: 8 }}>
+        {/* Slide selector — scrollable horizontal di HP agar tidak terpotong */}
+        <div className="flex gap-1.5 md:gap-2 overflow-x-auto md:overflow-visible tv-hide-scrollbar" style={{ scrollbarWidth: 'none' }}>
           {SLIDE_LABELS.map((label, i) => (
             <button key={i} onClick={() => { setSlide(i); setProgress(0); }}
-              style={{ padding: '8px 20px', borderRadius: 10, border: slide === i ? '1px solid #C9A84C' : '1px solid rgba(255,255,255,0.1)', background: slide === i ? 'rgba(201,168,76,0.15)' : 'transparent', color: slide === i ? '#C9A84C' : 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
+              className="flex-shrink-0 px-3 md:px-5 py-1.5 md:py-2 rounded-lg md:rounded-[10px] text-xs md:text-[13px]"
+              style={{ border: slide === i ? '1px solid #C9A84C' : '1px solid rgba(255,255,255,0.1)', background: slide === i ? 'rgba(201,168,76,0.15)' : 'transparent', color: slide === i ? '#C9A84C' : 'rgba(255,255,255,0.4)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
               {label}
             </button>
           ))}
         </div>
 
-        <div style={{ textAlign: 'right' }}>
+        <div className="hidden md:block" style={{ textAlign: 'right' }}>
           <div style={{ fontSize: 36, fontWeight: 700, color: '#C9A84C', fontVariantNumeric: 'tabular-nums', letterSpacing: '-1px' }}>{clock}</div>
         </div>
       </div>
@@ -330,6 +339,9 @@ export default function TvPage() {
         }
         @media (prefers-reduced-motion: reduce) {
           .tv-ticker { animation: none; }
+        }
+        .tv-hide-scrollbar::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
     </div>

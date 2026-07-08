@@ -146,6 +146,8 @@ export default function SetoranPage() {
                     ? <span className="px-2 py-0.5 bg-green-900/40 text-green-300 text-[10px] font-bold uppercase rounded-md">🤝 Donatur Tetap</span>
                     : item.kategori === 'infaq'
                     ? <span className="px-2 py-0.5 bg-blue-900/40 text-blue-300 text-[10px] font-bold uppercase rounded-md">🤲 Infaq</span>
+                    : item.kategori === 'waqaf'
+                    ? <span className="px-2 py-0.5 bg-teal-900/40 text-teal-300 text-[10px] font-bold uppercase rounded-md">🕌 Waqaf</span>
                     : <span className="px-2 py-0.5 bg-amber-900/40 text-amber-300 text-[10px] font-bold uppercase rounded-md">🐄 Qurban</span>
                   }
                 </div>

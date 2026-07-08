@@ -48,7 +48,7 @@ function MilestoneCapaian({ donatur, riwayat }: { donatur: any; riwayat: any[] }
 
 export default function InfaqPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<'insidentil' | 'donatur_tetap'>('insidentil');
+  const [tab, setTab] = useState<'insidentil' | 'donatur_tetap' | 'waqaf'>('insidentil');
   const [donaturData, setDonaturData] = useState<any>(null);
   const [riwayatRealisasi, setRiwayatRealisasi] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -88,7 +88,7 @@ export default function InfaqPage() {
     setLoading(true);
     setErrorMsg('');
     const formData = new FormData(e.currentTarget);
-    const kategori = tab === 'donatur_tetap' ? 'donatur_tetap' : 'infaq';
+    const kategori = tab === 'donatur_tetap' ? 'donatur_tetap' : tab === 'waqaf' ? 'waqaf' : 'infaq';
     formData.set('kategori', kategori);
     if (tab === 'donatur_tetap') formData.set('bulan_realisasi', bulanRealisasi + '-01');
     try {
@@ -134,7 +134,11 @@ export default function InfaqPage() {
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Laporan Terkirim!</h2>
         <p className="text-white/60 mb-6">
-          {tab === 'donatur_tetap' ? 'Bukti pembayaran donatur tetap sedang menunggu konfirmasi admin.' : 'Bukti setoran infaq sedang menunggu konfirmasi admin.'}
+          {tab === 'donatur_tetap'
+            ? 'Bukti pembayaran donatur tetap sedang menunggu konfirmasi admin.'
+            : tab === 'waqaf'
+            ? 'Bukti waqaf sedang menunggu konfirmasi admin.'
+            : 'Bukti setoran infaq sedang menunggu konfirmasi admin.'}
         </p>
         <button onClick={() => { setSuccess(false); setPreview(null); }} className="w-full py-3 mb-3 border border-white/15 text-white/60 font-semibold rounded-xl hover:bg-white/5">
           Lapor Lagi
@@ -161,12 +165,16 @@ export default function InfaqPage() {
       {/* Tab */}
       <div className="flex gap-2 mb-5">
         <button type="button" onClick={() => { setTab('insidentil'); setErrorMsg(''); }}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-all ${tab === 'insidentil' ? 'border-blue-500 bg-blue-900/30 text-blue-300' : 'border-white/10 text-white/40 hover:border-white/20'}`}>
-          💰 Infaq Insidentil
+          className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold border-2 transition-all ${tab === 'insidentil' ? 'border-blue-500 bg-blue-900/30 text-blue-300' : 'border-white/10 text-white/40 hover:border-white/20'}`}>
+          💰 Infaq
         </button>
         <button type="button" onClick={() => { setTab('donatur_tetap'); setErrorMsg(''); }}
-          className={`flex-1 py-2.5 rounded-xl text-sm font-bold border-2 transition-all ${tab === 'donatur_tetap' ? 'border-green-500 bg-green-900/30 text-green-300' : 'border-white/10 text-white/40 hover:border-white/20'}`}>
+          className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold border-2 transition-all ${tab === 'donatur_tetap' ? 'border-green-500 bg-green-900/30 text-green-300' : 'border-white/10 text-white/40 hover:border-white/20'}`}>
           🤝 Donatur Tetap
+        </button>
+        <button type="button" onClick={() => { setTab('waqaf'); setErrorMsg(''); }}
+          className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold border-2 transition-all ${tab === 'waqaf' ? 'border-teal-500 bg-teal-900/30 text-teal-300' : 'border-white/10 text-white/40 hover:border-white/20'}`}>
+          🕌 Waqaf
         </button>
       </div>
 
@@ -245,6 +253,12 @@ export default function InfaqPage() {
         </div>
       )}
 
+      {tab === 'waqaf' && (
+        <div className="mb-4 p-3 rounded-xl text-xs bg-teal-900/20 border border-teal-500/20 text-teal-300">
+          🕌 Waqaf Anda akan dicatat ke program waqaf masjid setelah dikonfirmasi admin. Transfer sesuai rekening/QRIS di bawah, lalu unggah buktinya.
+        </div>
+      )}
+
       {errorMsg && (
         <div className="p-3 mb-4 bg-red-900/30 border border-red-500/30 text-red-300 rounded-xl text-sm">{errorMsg}</div>
       )}
@@ -291,11 +305,11 @@ export default function InfaqPage() {
         </div>
       )}
 
-      {/* Form setoran — tampil selalu untuk insidentil, donatur tetap hanya jika terdaftar */}
-      {(tab === 'insidentil' || (tab === 'donatur_tetap' && donaturData)) && (
+      {/* Form setoran — tampil selalu untuk insidentil & waqaf, donatur tetap hanya jika terdaftar */}
+      {(tab === 'insidentil' || tab === 'waqaf' || (tab === 'donatur_tetap' && donaturData)) && (
         <form onSubmit={handleSubmitSetoran} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-1">Jumlah {tab === 'donatur_tetap' ? 'Pembayaran' : 'Infaq'} (Rp)</label>
+            <label className="block text-sm font-medium text-white/70 mb-1">Jumlah {tab === 'donatur_tetap' ? 'Pembayaran' : tab === 'waqaf' ? 'Waqaf' : 'Infaq'} (Rp)</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-white/50 font-medium text-sm">Rp</span>
               <input type="number" name="jumlah" required min="10000"
@@ -328,14 +342,14 @@ export default function InfaqPage() {
             <label className="block text-sm font-medium text-white/70 mb-1">Catatan (Opsional)</label>
             <textarea name="catatan" rows={2}
               className="w-full px-4 py-3 bg-white/5 border border-white/15 text-white placeholder:text-white/25 rounded-xl focus:ring-2 focus:ring-[#C9A84C] outline-none"
-              placeholder={tab === 'donatur_tetap' ? 'Opsional' : 'Misal: Infaq Jumat'} />
+              placeholder={tab === 'donatur_tetap' ? 'Opsional' : tab === 'waqaf' ? 'Misal: Waqaf kanopi masjid' : 'Misal: Infaq Jumat'} />
           </div>
 
           <button type="submit" disabled={loading}
             className="w-full py-4 bg-[#C9A84C] text-[#0F172A] font-bold rounded-xl hover:bg-[#D4B869] transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
             {loading
               ? <><svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Memproses...</>
-              : tab === 'donatur_tetap' ? '🤝 Kirim Bukti Pembayaran' : '🤲 Kirim Laporan Infaq'
+              : tab === 'donatur_tetap' ? '🤝 Kirim Bukti Pembayaran' : tab === 'waqaf' ? '🕌 Kirim Bukti Waqaf' : '🤲 Kirim Laporan Infaq'
             }
           </button>
         </form>

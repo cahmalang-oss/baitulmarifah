@@ -162,6 +162,23 @@ export async function POST(
         bukti_url: (setoran as any).bukti_url || null,
       });
 
+    } else if (kategori === 'waqaf') {
+      // kategori === 'waqaf': masukkan ke kas_transaksi program waqaf
+      const { error: kasError } = await supabase.from('kas_transaksi').insert({
+        jenis: 'masuk',
+        kategori: 'waqaf',
+        nominal: jumlahSetoran,
+        sumber: `Waqaf dari ${namaJamaah}`,
+        catatan: `Konfirmasi setoran ID: ${id}`,
+        tanggal: new Date().toISOString().split('T')[0],
+        input_oleh: payload.id,
+        bukti_url: (setoran as any).bukti_url || null,
+      });
+
+      if (kasError) {
+        try { await supabase.from('setoran').update({ status: 'pending', verified_by: null, verified_at: null }).eq('id', id); } catch {}
+        throw kasError;
+      }
     } else {
       // kategori === 'infaq': masukkan ke kas_transaksi sebagai insidentil
       const { error: kasError } = await supabase.from('kas_transaksi').insert({
